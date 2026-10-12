@@ -6,9 +6,10 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "SIWES",
     description:
       "Verified companies meet verified students. Matched openings, structured applications, clear status tracking.",
-    start_url: "/",
+    start_url: "/?source=pwa",
     scope: "/",
     display: "standalone",
+    id: "/?source=pwa",
     orientation: "portrait",
     background_color: "#0A3B22",
     theme_color: "#0A3B22",

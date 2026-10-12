@@ -2,7 +2,7 @@
 // Rules: never touch non-GET (Server Actions POSTs always go to network),
 // navigations are network-first with an offline fallback to the home page,
 // static assets are cache-first.
-const CACHE = "siwes-v1";
+const CACHE = "siwes-v2";
 const CORE = ["/", "/icons/icon-192.png", "/icons/icon-512.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
