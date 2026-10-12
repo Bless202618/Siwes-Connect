@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
-  BellRing,
   Briefcase,
+  CalendarDays,
   Clock3,
   FileCheck,
   ArrowRight,
@@ -234,9 +234,9 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                   label="Tracker"
                 />
                 <QuickTile
-                  href="/notifications"
-                  icon={<BellRing className="size-5 text-[#D97706]" />}
-                  label="Alerts"
+                  href="/schedule"
+                  icon={<CalendarDays className="size-5 text-[#D97706]" />}
+                  label="Schedule"
                 />
                 <QuickTile
                   href="/student/profile"
