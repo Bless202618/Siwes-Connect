@@ -13,6 +13,7 @@ export interface Notice {
   body: string | null;
   when: string;
   unread: boolean;
+  action: { href: string; label: string } | null;
 }
 
 export function NotificationList({ items }: { items: Notice[] }) {
@@ -67,6 +68,14 @@ export function NotificationList({ items }: { items: Notice[] }) {
               </span>
             </div>
             {n.body && <p className="mt-1 text-sm text-[#374151]">{n.body}</p>}
+            {n.action && (
+              <a
+                href={n.action.href}
+                className="mt-2 inline-flex items-center gap-1 text-sm font-extrabold text-[#0C6B3C]"
+              >
+                Take Action →
+              </a>
+            )}
           </div>
         );
       })}
