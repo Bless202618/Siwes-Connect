@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  BellRing,
   Briefcase,
   Clock3,
   FileCheck,
@@ -30,6 +31,23 @@ export interface TopMatch {
   reasons: string[];
 }
 
+export interface Spotlight {
+  kind: "shortlisted" | "accepted";
+  postingId: string;
+  postingTitle: string;
+  companyName: string;
+  when: string;
+  stipendPaid: boolean;
+}
+
+export interface StudentIdentity {
+  institution: string;
+  department: string;
+  level: string;
+  matricNumber: string;
+  preferredDuration: number;
+}
+
 export interface DashboardData {
   user: {
     name: string;
@@ -41,6 +59,8 @@ export interface DashboardData {
   companyProfile: { reviewReason: string | null } | null;
   stats: DashboardStat[];
   topMatch?: TopMatch | null;
+  spotlight?: Spotlight | null;
+  identity?: StudentIdentity | null;
 }
 
 function initials(name: string) {
@@ -89,37 +109,75 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
 
   return (
     <div className="space-y-4">
-      <Card className="border-t-4 border-t-[#0C6B3C]">
-        <CardContent className="flex flex-wrap items-center gap-3 pt-5">
-          <span className="flex size-12 items-center justify-center rounded-full bg-[#0C6B3C]/10 text-base font-extrabold text-[#0C6B3C]">
-            {initials(user.name)}
-          </span>
-          <div className="min-w-40 flex-1">
-            <p className="text-lg font-extrabold leading-tight">{user.name}</p>
-            <p className="text-sm text-[#475569]">
-              <span className="font-semibold capitalize">{user.role}</span> ·{" "}
-              {user.email}
-            </p>
+      {isStudent && data.identity ? (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="text-xl font-extrabold tracking-tight">
+                E ku abọ̀, {user.name.split(" ")[0]}
+              </p>
+              <p className="text-sm text-[#475569]">
+                {data.identity.department} · {data.identity.preferredDuration}{" "}
+                Months SIWES
+              </p>
+            </div>
+            <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-xs font-extrabold text-[#0C6B3C]">
+              {data.identity.level}
+            </span>
           </div>
-          <StatusBadge status={user.status} />
-          <span className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/settings/password">Change password</Link>}
-            />
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex items-center justify-between gap-2 rounded-2xl border bg-white p-3">
+            <p className="text-sm">
+              <span className="text-[#64748B]">Matric: </span>
+              <b>{data.identity.matricNumber || "—"}</b>
+            </p>
+            <StatusBadge status={user.status} />
+          </div>
+          <div className="flex justify-end gap-3 text-xs font-bold">
+            <Link href="/settings/password" className="text-[#0C6B3C] underline">
+              Change password
+            </Link>
+            <button
               onClick={logout}
               disabled={busy}
+              className="text-[#64748B] underline disabled:opacity-50"
             >
               Log out
-            </Button>
-          </span>
-        </CardContent>
-      </Card>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <Card className="border-t-4 border-t-[#0C6B3C]">
+          <CardContent className="flex flex-wrap items-center gap-3 pt-5">
+            <span className="flex size-12 items-center justify-center rounded-full bg-[#0C6B3C]/10 text-base font-extrabold text-[#0C6B3C]">
+              {initials(user.name)}
+            </span>
+            <div className="min-w-40 flex-1">
+              <p className="text-lg font-extrabold leading-tight">{user.name}</p>
+              <p className="text-sm text-[#475569]">
+                <span className="font-semibold capitalize">{user.role}</span> ·{" "}
+                {user.email}
+              </p>
+            </div>
+            <StatusBadge status={user.status} />
+            <span className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="/settings/password">Change password</Link>}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                disabled={busy}
+              >
+                Log out
+              </Button>
+            </span>
+          </CardContent>
+        </Card>
+      )}
 
       {data.stats.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -158,41 +216,91 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
         <CardContent className="flex flex-col gap-2">
           {isStudent && (
             <>
-              <p className="mb-1 text-xs font-extrabold tracking-widest text-[#64748B]">
+              <p className="mb-1 flex items-center justify-between text-xs font-extrabold tracking-widest text-[#64748B]">
                 QUICK ACTIONS
+                <span className="font-semibold normal-case tracking-normal text-[#0C6B3C]">
+                  Offline ready
+                </span>
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <QuickTile
                   href="/openings"
                   icon={<Briefcase className="size-5 text-[#0C6B3C]" />}
-                  label="Find openings"
+                  label="Find Job"
                 />
                 <QuickTile
                   href="/applications"
-                  icon={<Clock3 className="size-5 text-[#0C6B3C]" />}
+                  icon={<Clock3 className="size-5 text-[#2563EB]" />}
                   label="Tracker"
                 />
                 <QuickTile
+                  href="/notifications"
+                  icon={<BellRing className="size-5 text-[#D97706]" />}
+                  label="Alerts"
+                />
+                <QuickTile
                   href="/student/profile"
-                  icon={<FileCheck className="size-5 text-[#0C6B3C]" />}
-                  label="My documents"
+                  icon={<FileCheck className="size-5 text-[#7C3AED]" />}
+                  label="Vault"
                 />
               </div>
+              {data.spotlight && (
+                <Link
+                  href="/applications"
+                  className={`mt-2 block rounded-2xl p-4 ${
+                    data.spotlight.kind === "accepted"
+                      ? "border-2 border-[#F5A623] bg-[#FFFBEB]"
+                      : "bg-[#0A3B22] text-white"
+                  }`}
+                >
+                  <p
+                    className={`text-[11px] font-extrabold tracking-widest ${
+                      data.spotlight.kind === "accepted"
+                        ? "text-[#B45309]"
+                        : "text-[#F5A623]"
+                    }`}
+                  >
+                    {data.spotlight.kind === "accepted"
+                      ? "OFFER RECEIVED"
+                      : "ACTION REQUIRED"}
+                  </p>
+                  <p className="mt-1 font-extrabold">
+                    {data.spotlight.companyName}
+                  </p>
+                  <p
+                    className={`text-sm ${
+                      data.spotlight.kind === "accepted"
+                        ? "text-[#92400E]"
+                        : "text-white/70"
+                    }`}
+                  >
+                    {data.spotlight.postingTitle} ·{" "}
+                    {data.spotlight.stipendPaid ? "Stipend paid" : "No stipend"}
+                  </p>
+                  <p className="mt-2 flex items-center gap-1 text-sm font-bold text-[#0C6B3C]">
+                    View application <ArrowRight className="size-4" />
+                  </p>
+                </Link>
+              )}
               {data.topMatch && (
                 <Link
                   href={`/openings/${data.topMatch.id}`}
-                  className="mt-2 block rounded-2xl bg-[#0A3B22] p-4 text-white"
+                  className="mt-2 block overflow-hidden rounded-2xl border bg-white"
                 >
-                  <p className="text-[11px] font-extrabold tracking-widest text-[#F5A623]">
-                    TOP MATCH · {data.topMatch.score}% FIT
-                  </p>
-                  <p className="mt-1 font-extrabold">{data.topMatch.title}</p>
-                  <p className="text-sm text-white/70">
-                    {data.topMatch.companyName} · {data.topMatch.location}
-                  </p>
-                  <p className="mt-2 flex items-center gap-1 text-sm font-bold text-[#F5A623]">
-                    View details <ArrowRight className="size-4" />
-                  </p>
+                  <div className="bg-[#0A3B22] px-4 py-2">
+                    <p className="text-[11px] font-extrabold tracking-widest text-[#F5A623]">
+                      TOP MATCH · {data.topMatch.score}% FIT
+                    </p>
+                  </div>
+                  <div className="p-4">
+                    <p className="font-extrabold">{data.topMatch.title}</p>
+                    <p className="text-sm text-[#64748B]">
+                      {data.topMatch.companyName} · {data.topMatch.location}
+                    </p>
+                    <p className="mt-2 flex items-center gap-1 text-sm font-bold text-[#0C6B3C]">
+                      View details <ArrowRight className="size-4" />
+                    </p>
+                  </div>
                 </Link>
               )}
             </>

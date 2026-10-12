@@ -6,6 +6,8 @@ import {
   DashboardView,
   type DashboardStat,
   type TopMatch,
+  type Spotlight,
+  type StudentIdentity,
 } from "@/components/dashboard/dashboard-view";
 import { PageHeader } from "@/components/layout/page-header";
 
@@ -31,25 +33,65 @@ export default async function DashboardPage() {
 
   let stats: DashboardStat[] = [];
   let topMatch: TopMatch | null = null;
+  let spotlight: Spotlight | null = null;
+  let identity: StudentIdentity | null = null;
   if (me.role === "student") {
-    const [activeApps, unread] = await Promise.all([
-      db.application.count({
-        where: {
-          studentId: me.id,
-          status: { in: ["applied", "shortlisted"] },
-        },
-      }),
-      db.notification.count({ where: { userId: me.id, readAt: null } }),
-    ]);
+    const [activeApps, acceptedCount, deptMatches, spotlightApp] =
+      await Promise.all([
+        db.application.count({
+          where: {
+            studentId: me.id,
+            status: { in: ["applied", "shortlisted"] },
+          },
+        }),
+        db.application.count({
+          where: { studentId: me.id, status: "accepted" },
+        }),
+        studentProfile
+          ? db.posting.count({
+              where: {
+                status: "active",
+                departments: { has: studentProfile.department },
+                company: {
+                  verificationStatus: "verified",
+                  user: { status: "verified" },
+                },
+              },
+            })
+          : Promise.resolve(0),
+        db.application.findFirst({
+          where: {
+            studentId: me.id,
+            status: { in: ["shortlisted", "accepted"] },
+          },
+          orderBy: { updatedAt: "desc" },
+          include: { posting: { include: { company: true } } },
+        }),
+      ]);
     stats = [
-      { label: "Active applications", value: `${activeApps} / 5`, href: "/applications" },
-      { label: "Unread notifications", value: String(unread), href: "/notifications" },
-      {
-        label: "Verification",
-        value: me.status === "verified" ? "Done" : "Pending",
-        href: "/student/profile",
-      },
+      { label: "Active Applications", value: `${activeApps}`, href: "/applications" },
+      { label: "Official Offer", value: String(acceptedCount), href: "/applications" },
+      { label: "Course Matches", value: String(deptMatches), href: "/openings" },
     ];
+    if (spotlightApp) {
+      spotlight = {
+        kind: spotlightApp.status as "shortlisted" | "accepted",
+        postingId: spotlightApp.postingId,
+        postingTitle: spotlightApp.posting.title,
+        companyName: spotlightApp.posting.company.companyName,
+        when: spotlightApp.updatedAt.toLocaleDateString(),
+        stipendPaid: spotlightApp.posting.hasStipend,
+      };
+    }
+    if (studentProfile) {
+      identity = {
+        institution: studentProfile.institution,
+        department: studentProfile.department,
+        level: studentProfile.level,
+        matricNumber: studentProfile.matricNumber,
+        preferredDuration: studentProfile.preferredDuration,
+      };
+    }
     if (studentProfile && me.status === "verified") {
       const open = await db.posting.findMany({
         where: { status: "active" },
@@ -125,8 +167,10 @@ export default async function DashboardPage() {
 
   // Prisma relation: Posting.company -> CompanyProfile.
   return (
-    <main className="mx-auto max-w-2xl space-y-4 px-4 py-10">
-      <PageHeader eyebrow="DASHBOARD" title={`Hello, ${me.name.split(" ")[0]}`} />
+    <main className="mx-auto max-w-2xl space-y-4 px-4 py-8">
+      {me.role !== "student" && (
+        <PageHeader eyebrow="DASHBOARD" title={`Hello, ${me.name.split(" ")[0]}`} />
+      )}
       <DashboardView
         data={{
           user: {
@@ -147,6 +191,8 @@ export default async function DashboardPage() {
             ? { reviewReason: companyProfile.reviewReason }
             : null,
           topMatch,
+          spotlight,
+          identity,
           stats,
         }}
       />
