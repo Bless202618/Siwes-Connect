@@ -85,7 +85,7 @@ export function InstallButton({ large }: { large?: boolean }) {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Install ITopp on your iPhone</DialogTitle>
+            <DialogTitle>Install SIWES Connect on your iPhone</DialogTitle>
             <DialogDescription>
               Apple installs apps from the browser menu:
             </DialogDescription>
@@ -98,7 +98,7 @@ export function InstallButton({ large }: { large?: boolean }) {
               Scroll down and tap <b>Add to Home Screen</b>.
             </li>
             <li>
-              Tap <b>Add</b> — ITopp opens full-screen like a real app.
+              Tap <b>Add</b> — SIWES Connect opens full-screen like a real app.
             </li>
           </ol>
         </DialogContent>

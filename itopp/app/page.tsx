@@ -38,7 +38,7 @@ export default async function Home() {
             Real openings. Verified companies. Zero guesswork.
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-white/70">
-            ITopp connects verified 400-level students with verified companies
+            SIWES Connect brings verified 400-level students with verified companies
             offering IT placements — matched discovery, structured
             applications, and clear status tracking from Applied to Accepted.
           </p>
@@ -156,10 +156,10 @@ export default async function Home() {
         <div className="rounded-2xl bg-[#0B2E1F] p-8 text-center text-white sm:p-10">
           <Smartphone className="mx-auto mb-3 size-8 text-[#9ADBB0]" />
           <h2 className="text-2xl font-extrabold tracking-tight">
-            Take ITopp anywhere
+            Take SIWES Connect anywhere
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-white/70">
-            Install ITopp on your phone — full-screen icon, works even with
+            Install SIWES Connect on your phone — full-screen icon, works even with
             shaky campus internet. Android: one tap. iPhone: Share → Add to
             Home Screen.
           </p>

@@ -71,7 +71,7 @@ export default function DesignPage() {
   return (
     <main className="mx-auto max-w-4xl space-y-8 bg-[#F9FAFB] px-4 py-10 text-[#111827]">
       <header>
-        <h1 className="text-3xl font-extrabold">ITopp — Design System</h1>
+        <h1 className="text-3xl font-extrabold">SIWES Connect — Design System</h1>
         <p className="mt-1 text-sm text-[#6B7280]">
           v1 · Live style guide at <code>/design</code> · Every piece below is
           a real component used by the app.

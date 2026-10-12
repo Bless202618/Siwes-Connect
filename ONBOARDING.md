@@ -1,4 +1,4 @@
-# ITopp Pilot — Onboarding Kit (1 department, 15–20 companies)
+# SIWES Connect Pilot — Onboarding Kit (1 department, 15–20 companies)
 
 ## For companies (send this 1-pager on WhatsApp/email)
 

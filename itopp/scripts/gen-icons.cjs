@@ -1,4 +1,4 @@
-// Generates PWA icons from public/icons/itopp-icon.svg.
+// Generates PWA icons from the SVG master.
 // Usage: node scripts/gen-icons.cjs  (needs `sharp` installed)
 const sharp = require("sharp");
 const path = require("node:path");
