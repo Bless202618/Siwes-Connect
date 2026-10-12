@@ -6,8 +6,8 @@ import { db } from "@/lib/db";
 import { NotificationList } from "@/components/notifications/notification-list";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  { key: "all", label: "All Alerts", types: null as string[] | null },
+const TABS: { key: string; label: string; types: string[] | null }[] = [
+  { key: "all", label: "All Alerts", types: null },
   {
     key: "applications",
     label: "Applications",
@@ -23,7 +23,7 @@ const TABS = [
     label: "Reports",
     types: ["report_ack", "report_resolved", "new_report"],
   },
-] as const;
+];
 
 const ACTION_BY_TYPE: Record<string, { href: string; label: string }> = {
   new_application: { href: "/company/postings", label: "Review" },
