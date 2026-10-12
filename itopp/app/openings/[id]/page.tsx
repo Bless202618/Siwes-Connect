@@ -12,6 +12,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { matchScore } from "@/lib/match";
+import { postingPhoto } from "@/lib/posting-photo";
 import { companyResponseDays } from "@/lib/response-time";
 import { ApplyForm } from "@/components/openings/apply-form";
 import { ShareButton } from "@/components/openings/share-button";
@@ -96,8 +97,6 @@ export default async function OpeningDetailPage({
     _count: true,
   });
 
-  let hue = 150;
-  for (const ch of posting.id) hue = (hue + ch.charCodeAt(0)) % 360;
   const ref = `SIWES-${posting.createdAt.getFullYear()}-${posting.id.slice(-4).toUpperCase()}`;
   const applicantCount = await db.application.count({
     where: { postingId: posting.id, status: { not: "withdrawn" } },
@@ -116,16 +115,17 @@ export default async function OpeningDetailPage({
         <ShareButton title={`${posting.title} — ${posting.company.companyName}`} />
       </div>
 
-      <div
-        className="rounded-2xl p-5 text-white"
-        style={{
-          background: `linear-gradient(135deg, hsl(${hue} 45% 20%), hsl(${(hue + 40) % 360} 55% 30%))`,
-        }}
-      >
-        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
+      <div className="relative overflow-hidden rounded-2xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={postingPhoto(posting.departments, posting.id)}
+          alt={`${posting.company.companyName} workplace`}
+          className="h-52 w-full object-cover"
+        />
+        <span className="absolute left-3 top-3 rounded-full bg-[#0A3B22]/90 px-3 py-1 text-xs font-bold text-white">
           ✓ ITF-Approved
         </span>
-        <p className="mt-3 text-xl font-extrabold leading-snug">
+        <p className="absolute bottom-3 left-4 right-4 text-xl font-extrabold leading-snug text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
           {posting.company.companyName}
         </p>
       </div>

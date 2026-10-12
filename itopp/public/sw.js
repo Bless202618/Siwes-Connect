@@ -48,8 +48,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // App files + icons: serve cached, refresh quietly in background.
-  if (url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icons/")) {
+  // App files, icons + posting photos: serve cached, refresh quietly.
+  if (
+    url.pathname.startsWith("/_next/static") ||
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/postings/")
+  ) {
     event.respondWith(
       caches.match(req).then((hit) => {
         const network = fetch(req).then((res) => {

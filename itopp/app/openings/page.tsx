@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { SaveButton } from "@/components/openings/save-button";
+import { postingPhoto } from "@/lib/posting-photo";
 import { PageHeader } from "@/components/layout/page-header";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -277,22 +278,24 @@ function timeAgo(ts: number) {
 }
 
 function PostingCard({ p, canSave }: { p: FeedPosting; canSave: boolean }) {
-  let hue = 150;
-  for (const ch of p.id) hue = (hue + ch.charCodeAt(0)) % 360;
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <div
-        className="flex items-start justify-between gap-2 p-4 pb-10"
-        style={{
-          background: `linear-gradient(135deg, hsl(${hue} 45% 22%), hsl(${(hue + 40) % 360} 55% 32%))`,
-        }}
-      >
-        <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white">
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={postingPhoto(p.departments, p.id)}
+          alt={`${p.companyName} workplace`}
+          loading="lazy"
+          className="h-44 w-full object-cover"
+        />
+        <span className="absolute left-3 top-3 rounded-full bg-[#0A3B22]/90 px-3 py-1 text-xs font-bold text-white">
           ✓ ITF-Approved
         </span>
-        <SaveButton postingId={p.id} initialSaved={p.saved} canSave={canSave} />
+        <span className="absolute right-3 top-3">
+          <SaveButton postingId={p.id} initialSaved={p.saved} canSave={canSave} />
+        </span>
       </div>
-      <CardContent className="-mt-7 flex flex-wrap items-center gap-3 pt-0">
+      <CardContent className="flex flex-wrap items-center gap-3 pt-4">
         <div className="min-w-48 flex-1 rounded-2xl">
           <p className="text-lg font-extrabold leading-snug tracking-tight">
             {p.companyName}

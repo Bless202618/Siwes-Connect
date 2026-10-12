@@ -29,6 +29,7 @@ export interface TopMatch {
   location: string;
   score: number;
   reasons: string[];
+  photo: string;
 }
 
 export interface Spotlight {
@@ -226,7 +227,7 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                 <QuickTile
                   href="/openings"
                   icon={<Briefcase className="size-5 text-[#0C6B3C]" />}
-                  label="Find Job"
+                  label="Find Placement"
                 />
                 <QuickTile
                   href="/applications"
@@ -287,10 +288,17 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                   href={`/openings/${data.topMatch.id}`}
                   className="mt-2 block overflow-hidden rounded-2xl border bg-white"
                 >
-                  <div className="bg-[#0A3B22] px-4 py-2">
-                    <p className="text-[11px] font-extrabold tracking-widest text-[#F5A623]">
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={data.topMatch.photo}
+                      alt={`${data.topMatch.companyName} workplace`}
+                      loading="lazy"
+                      className="h-36 w-full object-cover"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-[#0A3B22]/90 px-3 py-1 text-[11px] font-extrabold tracking-widest text-[#F5A623]">
                       TOP MATCH · {data.topMatch.score}% FIT
-                    </p>
+                    </span>
                   </div>
                   <div className="p-4">
                     <p className="font-extrabold">{data.topMatch.title}</p>

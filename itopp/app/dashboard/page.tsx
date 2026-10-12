@@ -2,6 +2,7 @@ import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { companyResponseDays } from "@/lib/response-time";
 import { matchScore } from "@/lib/match";
+import { postingPhoto } from "@/lib/posting-photo";
 import {
   DashboardView,
   type DashboardStat,
@@ -120,6 +121,7 @@ export default async function DashboardPage() {
           location: best.p.location,
           score: best.m.score,
           reasons: best.m.reasons,
+          photo: postingPhoto(best.p.departments, best.p.id),
         };
       }
     }
