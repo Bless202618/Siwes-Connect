@@ -335,6 +335,7 @@ const postingSchema = z.object({
   customQuestions: z.array(z.string().trim().min(1).max(300)).max(10),
   isQuickPost: z.boolean(),
   hasStipend: z.boolean(),
+  description: z.string().trim().max(2000),
 });
 
 type PostingInput = z.infer<typeof postingSchema>;
@@ -368,6 +369,7 @@ export async function createPostingAction(
       customQuestions: parsed.data.customQuestions,
       isQuickPost: parsed.data.isQuickPost,
       hasStipend: parsed.data.hasStipend,
+      description: parsed.data.description,
       status: "active",
     },
   });
@@ -397,6 +399,7 @@ export async function updatePostingAction(
       skillsRequired: parsed.data.skillsRequired,
       customQuestions: parsed.data.customQuestions,
       hasStipend: parsed.data.hasStipend,
+      description: parsed.data.description,
     },
   });
   revalidatePath("/company/postings");

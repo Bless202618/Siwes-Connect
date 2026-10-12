@@ -134,6 +134,7 @@ model Posting {
   customQuestions  Json          @default("[]")
   isQuickPost      Boolean       @default(false)
   hasStipend       Boolean       @default(false)
+  description      String        @default("")
   status           PostingStatus @default(active)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt

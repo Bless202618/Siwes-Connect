@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -22,6 +23,7 @@ export interface PostingInitial {
   skillsRequired: string[];
   customQuestions: string[];
   hasStipend: boolean;
+  description: string;
 }
 
 export function PostingForm({ initial }: { initial?: PostingInitial }) {
@@ -46,6 +48,7 @@ export function PostingForm({ initial }: { initial?: PostingInitial }) {
   const [hasStipend, setHasStipend] = useState<boolean>(
     initial?.hasStipend ?? false
   );
+  const [description, setDescription] = useState(initial?.description ?? "");
   const [newQ, setNewQ] = useState("");
 
   function toggleDept(d: string) {
@@ -84,6 +87,7 @@ export function PostingForm({ initial }: { initial?: PostingInitial }) {
       customQuestions: mode === "quick" ? [] : questions,
       isQuickPost: mode === "quick",
       hasStipend,
+      description: mode === "quick" ? "" : description.trim(),
     };
     setBusy(true);
     const res = initial
@@ -120,8 +124,7 @@ export function PostingForm({ initial }: { initial?: PostingInitial }) {
 
         <div>
           <label className="mb-1 block text-sm font-semibold">Title</label>
-          <Input
-            placeholder="e.g. Frontend Intern"
+          <Input            placeholder="e.g. Frontend Intern"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -184,6 +187,17 @@ export function PostingForm({ initial }: { initial?: PostingInitial }) {
                 placeholder="e.g. React, Git, Figma"
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold">
+                Role description — what will the intern actually do?
+              </label>
+              <Textarea
+                placeholder="e.g. Join our engineering team in Lekki. You will rotate through equipment inspection, pipeline maintenance, and safety reviews…"
+                rows={5}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
             <div>

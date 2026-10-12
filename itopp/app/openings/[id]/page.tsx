@@ -1,13 +1,43 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Clock3,
+  GraduationCap,
+  ShieldCheck,
+  Timer,
+  Wallet,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { matchScore } from "@/lib/match";
+import { companyResponseDays } from "@/lib/response-time";
 import { ApplyForm } from "@/components/openings/apply-form";
+import { ShareButton } from "@/components/openings/share-button";
 import { ReportDialog } from "@/components/reports/report-dialog";
-import { PageHeader } from "@/components/layout/page-header";
+
+function FactTile({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-2xl border bg-white p-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#E9F7EE]">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-extrabold">{value}</span>
+        <span className="block text-xs text-[#64748B]">{label}</span>
+      </span>
+    </div>
+  );
+}
 
 export default async function OpeningDetailPage({
   params,
@@ -68,10 +98,24 @@ export default async function OpeningDetailPage({
 
   let hue = 150;
   for (const ch of posting.id) hue = (hue + ch.charCodeAt(0)) % 360;
+  const ref = `SIWES-${posting.createdAt.getFullYear()}-${posting.id.slice(-4).toUpperCase()}`;
+  const applicantCount = await db.application.count({
+    where: { postingId: posting.id, status: { not: "withdrawn" } },
+  });
+  const responseDays = await companyResponseDays(posting.company.userId);
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 px-4 py-10">
-      <PageHeader eyebrow="OPENING" title={posting.title} />
+    <main className="mx-auto max-w-2xl space-y-4 px-4 py-8">
+      <div className="flex items-center justify-between">
+        <Link
+          href="/openings"
+          className="text-sm font-bold text-[#0B2E1F] hover:text-[#0C6B3C]"
+        >
+          ← Back to Placements
+        </Link>
+        <ShareButton title={`${posting.title} — ${posting.company.companyName}`} />
+      </div>
+
       <div
         className="rounded-2xl p-5 text-white"
         style={{
@@ -84,52 +128,106 @@ export default async function OpeningDetailPage({
         <p className="mt-3 text-xl font-extrabold leading-snug">
           {posting.company.companyName}
         </p>
-        <p className="text-sm text-white/75">
-          {posting.location} · {posting.durationMonths} months ·{" "}
-          {posting.hasStipend ? "Stipend: Yes" : "Stipend: No"}
-        </p>
       </div>
+
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-2">
-            <CardTitle className="text-xl">{posting.title}</CardTitle>
-            <StatusBadge status="verified" />
+        <CardContent className="space-y-3 pt-5 text-sm">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <p className="text-lg font-extrabold leading-snug">{posting.title}</p>
+            <span
+              className={`shrink-0 rounded-lg px-3 py-1.5 text-sm font-extrabold ${
+                posting.hasStipend
+                  ? "bg-[#DCFCE7] text-[#0C6B3C]"
+                  : "bg-gray-100 text-[#64748B]"
+              }`}
+            >
+              {posting.hasStipend ? "Stipend: Yes" : "Stipend: No"}
+            </span>
           </div>
-          <p className="text-sm text-[#6B7280]">
-            {posting.company.companyName} · {posting.location} ·{" "}
-            {posting.durationMonths} months
+          <p className="text-[#64748B]">
+            {posting.location} · Duration: {posting.durationMonths} Months
           </p>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div>
-            <b>Departments:</b> {posting.departments.join(", ")}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#0C6B3C]/30 bg-[#E9F7EE] px-3 py-1.5 text-xs font-bold text-[#0C6B3C]">
+              <ShieldCheck className="size-4" /> Ref: {ref}
+            </span>
+            <span className="text-xs text-[#64748B]">
+              {applicantCount} applied
+            </span>
           </div>
-          <div>
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="mb-2 text-base font-extrabold">Placement Facts</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <FactTile
+            icon={<Clock3 className="size-5 text-[#0C6B3C]" />}
+            label="Duration"
+            value={`${posting.durationMonths} Months`}
+          />
+          <FactTile
+            icon={<Wallet className="size-5 text-[#0C6B3C]" />}
+            label="Stipend"
+            value={posting.hasStipend ? "Paid (see interview)" : "Unpaid"}
+          />
+          <FactTile
+            icon={<GraduationCap className="size-5 text-[#0C6B3C]" />}
+            label="Departments"
+            value={
+              posting.departments.length > 1
+                ? `${posting.departments[0]} +${posting.departments.length - 1}`
+                : (posting.departments[0] ?? "—")
+            }
+          />
+          <FactTile
+            icon={<Timer className="size-5 text-[#0C6B3C]" />}
+            label="Responds in"
+            value={responseDays === null ? "New poster" : `~${responseDays} day(s)`}
+          />
+        </div>
+      </div>
+
+      {posting.description && (
+        <Card>
+          <CardContent className="pt-5">
+            <h2 className="text-base font-extrabold">
+              Practical Industrial Exposure
+            </h2>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#374151]">
+              {posting.description}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardContent className="pt-5 text-sm">
+          <p className="font-extrabold">Assigned Industry Supervisor:</p>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full bg-[#0C6B3C]/10 text-sm font-extrabold text-[#0C6B3C]">
+              {posting.company.contactName
+                .split(" ")
+                .map((w) => w[0])
+                .slice(0, 2)
+                .join("")
+                .toUpperCase()}
+            </span>
+            <div>
+              <p className="font-bold">{posting.company.contactName}</p>
+              <p className="text-[#64748B]">
+                {posting.company.phone} · {posting.company.website}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3">
             <b>Skills wanted:</b>{" "}
             {posting.skillsRequired.length > 0
               ? posting.skillsRequired.join(", ")
               : "Open to all skills"}
           </div>
-          <div>
-            <b>Contact:</b> {posting.company.contactName} ·{" "}
-            {posting.company.phone} · {posting.company.website}
-          </div>
-          <div>
-            <b>Stipend:</b>{" "}
-            <span
-              className={
-                posting.hasStipend
-                  ? "font-bold text-[#0C6B3C]"
-                  : "font-bold text-[#64748B]"
-              }
-            >
-              {posting.hasStipend
-                ? "Yes — amount discussed at interview"
-                : "No stipend for this opening"}
-            </span>
-          </div>
           {match && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {match.reasons.map((r) => (
                 <span
                   key={r}
@@ -140,11 +238,11 @@ export default async function OpeningDetailPage({
               ))}
             </div>
           )}
-          <p className="rounded-md bg-[#F3F4F6] p-3 text-xs text-[#6B7280]">
+          <p className="mt-3 rounded-md bg-[#F3F4F6] p-3 text-xs text-[#6B7280]">
             Interviews happen off-app: shortlisted students are contacted by
             the company directly.
           </p>
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <span className="text-sm">
               Company rating:{" "}
               <b>
