@@ -1,9 +1,19 @@
 import { redirect } from "next/navigation";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { FileText, Landmark, QrCode, ShieldCheck, Sparkles } from "lucide-react";
+import QRCode from "qrcode";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { StudentProfileForm } from "@/components/student/student-profile-form";
 import { VerificationSteps } from "@/components/verification-steps";
+import { ShareVerifyButton } from "@/components/profile/share-verify-button";
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://itopp.vercel.app";
+
+function maskAccount(n: string) {
+  if (!/^[0-9]{10}$/.test(n)) return "—";
+  return `${n.slice(0, 3)}•••••${n.slice(-2)}`;
+}
 
 export default async function StudentProfilePage() {
   const me = await getSessionUser();
@@ -14,6 +24,8 @@ export default async function StudentProfilePage() {
     where: { userId: me.id },
   });
   const step = me.status === "verified" ? 3 : existing ? 2 : 1;
+  const verifyUrl = `${APP_URL}/verify/${me.id}`;
+  const qr = await QRCode.toDataURL(verifyUrl, { width: 168, margin: 1 });
 
   return (
     <main className="mx-auto max-w-xl space-y-4 px-4 py-8">
@@ -59,6 +71,9 @@ export default async function StudentProfilePage() {
                 preferredDuration: existing.preferredDuration,
                 cgpa: existing.cgpa,
                 skills: existing.skills,
+                bankName: existing.bankName,
+                accountNumber: existing.accountNumber,
+                accountName: existing.accountName,
                 cvName: existing.cvName,
                 idDocName: existing.idDocName,
               }
@@ -75,6 +90,89 @@ export default async function StudentProfilePage() {
           working when campus network drops.
         </p>
       </div>
+
+      {existing && (
+        <>
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-base font-extrabold">Documents Vault</h2>
+              <span className="text-xs text-[#64748B]">
+                File names on record
+              </span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 rounded-2xl border bg-white p-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#E9F7EE]">
+                  <FileText className="size-5 text-[#0C6B3C]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-extrabold">
+                    {existing.cvName || "No CV uploaded yet"}
+                  </p>
+                  <p className="text-xs text-[#64748B]">CV / Resume</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 rounded-2xl border bg-white p-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#E9F7EE]">
+                  <FileText className="size-5 text-[#0C6B3C]" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-extrabold">
+                    {existing.idDocName || "No school ID uploaded yet"}
+                  </p>
+                  <p className="text-xs text-[#64748B]">
+                    School ID / admission letter
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-white p-4">
+            <p className="flex items-center gap-2 text-base font-extrabold">
+              <Landmark className="size-5 text-[#0C6B3C]" /> Stipend Bank Account
+            </p>
+            {existing.bankName ? (
+              <div className="mt-2 rounded-xl bg-gray-50 p-3 text-sm">
+                <p className="font-extrabold">{existing.bankName}</p>
+                <p className="text-[#475569]">
+                  {maskAccount(existing.accountNumber)}
+                  {existing.accountName ? ` · ${existing.accountName}` : ""}
+                </p>
+                <p className="mt-1 text-xs text-[#64748B]">
+                  Self-reported. Confirm with the student before any payout.
+                </p>
+              </div>
+            ) : (
+              <p className="mt-1 text-sm text-[#64748B]">
+                No bank saved yet — add one in the form above for future
+                stipend payouts.
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border bg-white p-4 text-center">
+            <p className="flex items-center justify-center gap-2 text-base font-extrabold">
+              <QrCode className="size-5 text-[#0C6B3C]" /> Prove it in person
+            </p>
+            <p className="mx-auto mt-1 max-w-xs text-xs text-[#64748B]">
+              Employers scan this to open your public verification card — no
+              login needed.
+            </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={qr}
+              alt="Verification QR code"
+              width={168}
+              height={168}
+              className="mx-auto mt-3 rounded-xl border"
+            />
+            <div className="mx-auto mt-3 max-w-xs">
+              <ShareVerifyButton url={verifyUrl} />
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }

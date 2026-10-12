@@ -55,6 +55,30 @@ export const DEPARTMENTS: [string, ...string[]] = [
 
 export const LEVELS: [string, ...string[]] = ["400 Level", "500 Level"];
 
+// Nigerian banks for the stipend account section (self-reported).
+export const BANKS: [string, ...string[]] = [
+  "Access Bank",
+  "Citibank",
+  "Ecobank",
+  "Fidelity Bank",
+  "First Bank of Nigeria",
+  "First City Monument Bank (FCMB)",
+  "Guaranty Trust Bank (GTBank)",
+  "Jaiz Bank",
+  "Keystone Bank",
+  "Moniepoint MFB",
+  "Opay",
+  "Palmpay",
+  "Stanbic IBTC Bank",
+  "Standard Chartered",
+  "Sterling Bank",
+  "Union Bank",
+  "United Bank for Africa (UBA)",
+  "Unity Bank",
+  "Wema Bank",
+  "Zenith Bank",
+];
+
 // Higher institutions offering SIWES placements (pilot list, extendable).
 export const INSTITUTIONS: [string, ...string[]] = [
   "University of Lagos (UNILAG)",

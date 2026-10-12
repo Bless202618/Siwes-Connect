@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { saveStudentProfileAction } from "@/lib/actions";
-import { DEPARTMENTS, INSTITUTIONS, LEVELS } from "@/lib/options";
+import { DEPARTMENTS, INSTITUTIONS, LEVELS, BANKS } from "@/lib/options";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -46,6 +46,14 @@ const schema = z.object({
       "CGPA must be a number between 0 and 5"
     ),
   skills: z.string().min(2, "List at least one skill, e.g. React, Git"),
+  bankName: z.string(),
+  accountNumber: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || /^[0-9]{10}$/.test(v), {
+      message: "NUBAN account numbers are exactly 10 digits",
+    }),
+  accountName: z.string().trim().max(100),
 });
 
 type Values = z.infer<typeof schema>;
@@ -59,6 +67,9 @@ export interface StudentProfileInitial {
   preferredDuration: number;
   cgpa: number;
   skills: string[];
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
   cvName: string | null;
   idDocName: string | null;
 }
@@ -114,6 +125,9 @@ export function StudentProfileForm({
       matricNumber: initial?.matricNumber ?? "",
       cgpa: initial ? String(initial.cgpa) : "",
       skills: initial?.skills.join(", ") ?? "",
+      bankName: initial?.bankName ?? "",
+      accountNumber: initial?.accountNumber ?? "",
+      accountName: initial?.accountName ?? "",
     },
   });
 
@@ -138,6 +152,9 @@ export function StudentProfileForm({
       preferredDuration: duration,
       cgpa: Number(v.cgpa),
       skills: v.skills.split(",").map((s) => s.trim()).filter(Boolean),
+      bankName: v.bankName,
+      accountNumber: v.accountNumber.trim(),
+      accountName: v.accountName.trim(),
       cvName,
       idDocName,
     });
@@ -320,6 +337,56 @@ export function StudentProfileForm({
                 {...register("skills")}
               />
               {errors.skills && <Err msg={errors.skills.message} />}
+            </div>
+
+            <div>
+              <FieldLabel icon={<FileUp className="size-4" />}>
+                Stipend bank (optional)
+              </FieldLabel>
+              <Select
+                value={watch("bankName")}
+                onValueChange={(val) => setValue("bankName", val ?? "")}
+              >
+                <SelectTrigger className={inputCls}>
+                  <SelectValue placeholder="Select bank…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BANKS.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.bankName && <Err msg={errors.bankName.message} />}
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <div>
+                  <Input
+                    placeholder="10-digit NUBAN"
+                    inputMode="numeric"
+                    maxLength={10}
+                    className={inputCls}
+                    {...register("accountNumber")}
+                  />
+                  {errors.accountNumber && (
+                    <Err msg={errors.accountNumber.message} />
+                  )}
+                </div>
+                <div>
+                  <Input
+                    placeholder="Account name"
+                    className={inputCls}
+                    {...register("accountName")}
+                  />
+                  {errors.accountName && (
+                    <Err msg={errors.accountName.message} />
+                  )}
+                </div>
+              </div>
+              <p className="mt-1 text-xs text-[#64748B]">
+                Self-reported for future stipend payouts. Never marked
+                “verified” — confirm details with the student before paying.
+              </p>
             </div>
 
             <div>

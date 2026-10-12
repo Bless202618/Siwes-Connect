@@ -98,6 +98,9 @@ model StudentProfile {
   cvName             String?
   cvUrl              String?
   idDocName          String?
+  bankName           String            @default("")
+  accountNumber      String            @default("")
+  accountName        String            @default("")
   verificationStatus VerificationState @default(pending)
   reviewReason       String?
   createdAt          DateTime          @default(now())

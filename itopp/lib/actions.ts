@@ -157,6 +157,14 @@ const studentSchema = z.object({
   skills: z.array(z.string().trim().min(1).max(40)).min(1).max(30),
   cvName: z.string().trim().min(1).max(200),
   idDocName: z.string().trim().min(1).max(200),
+  bankName: z.string().trim().max(60),
+  accountNumber: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || /^[0-9]{10}$/.test(v), {
+      message: "NUBAN account numbers are exactly 10 digits",
+    }),
+  accountName: z.string().trim().max(100),
 });
 
 export async function saveStudentProfileAction(input: {
@@ -170,6 +178,9 @@ export async function saveStudentProfileAction(input: {
   skills: string[];
   cvName: string;
   idDocName: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
 }): Promise<ActionResult> {
   const me = await getSessionUser();
   if (!me || me.role !== "student") return { ok: false, error: "Students only." };
