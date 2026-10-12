@@ -30,9 +30,14 @@ export default async function ApplicationsPage() {
     <main className="mx-auto max-w-3xl space-y-4 px-4 py-10">
       <PageHeader
         eyebrow="TRACKING"
-        title="My applications"
-        description={`${active} of 5 active slots used — withdrawing frees a slot.`}
+        title="Application Pipeline"
+        description="Real-time status tracking with company HR."
       />
+      <div>
+        <span className="rounded-full border border-[#0C6B3C]/30 bg-[#E9F7EE] px-3 py-1 text-xs font-extrabold text-[#0C6B3C]">
+          {active} Active Track{active === 1 ? "" : "s"}
+        </span>
+      </div>
       <ApplicationList
         applications={apps.map((a) => ({
           id: a.id,
@@ -46,6 +51,8 @@ export default async function ApplicationsPage() {
           active: a.status === "applied" || a.status === "shortlisted",
           placementComplete: a.placementComplete,
           myRating: myRatingMap.get(a.id) ?? null,
+          createdAt: a.createdAt.toISOString(),
+          updatedAt: a.updatedAt.toISOString(),
         }))}
       />
       <p className="text-sm">
