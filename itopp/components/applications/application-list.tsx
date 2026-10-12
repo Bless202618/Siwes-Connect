@@ -21,6 +21,10 @@ export interface ApplicationRow {
   myRating: number | null;
   createdAt: string;
   updatedAt: string;
+  durationMonths: number;
+  departments: string[];
+  hasStipend: boolean;
+  postingCreatedAt: string;
 }
 
 const STEPS = [
@@ -242,6 +246,45 @@ function FeaturedCard({
   );
 }
 
+function OfferCard({ app }: { app: ApplicationRow }) {
+  const ref = `SIWES-${new Date(app.postingCreatedAt).getFullYear()}-${app.id
+    .slice(-4)
+    .toUpperCase()}`;
+  const rows: [string, string][] = [
+    ["Company stipend", app.hasStipend ? "Yes" : "No"],
+    ["Duration", `${app.durationMonths} Months`],
+    ["Placement reference", ref],
+    ["Department", app.departments[0] ?? "—"],
+  ];
+  return (
+    <div className="overflow-hidden rounded-2xl border">
+      <div className="bg-[#0A3B22] p-4 text-white">
+        <p className="text-[11px] font-extrabold tracking-widest text-[#F5A623]">
+          OFFICIAL PLACEMENT OFFER
+        </p>
+        <p className="mt-1 text-lg font-extrabold leading-snug">
+          {app.companyName}
+        </p>
+        <p className="text-sm text-white/70">
+          Role: {app.postingTitle} ({app.durationMonths} Months)
+        </p>
+      </div>
+      <div className="divide-y bg-white px-4">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex items-baseline justify-between gap-3 py-2.5 text-sm">
+            <span className="text-[#64748B]">{label}:</span>
+            <span className="text-right font-extrabold">{value}</span>
+          </div>
+        ))}
+      </div>
+      <p className="bg-gray-50 px-4 py-3 text-xs text-[#64748B]">
+        Stipend amounts are discussed at interview, never listed here. The
+        company will contact you off-app with reporting details.
+      </p>
+    </div>
+  );
+}
+
 function CompactCard({
   app,
   busy,
@@ -266,18 +309,7 @@ function CompactCard({
         </div>
         <Timeline app={app} />
         {app.status === "accepted" && !app.placementComplete && (
-          <div className="rounded-xl bg-[#0A3B22] p-4 text-white">
-            <p className="text-[11px] font-extrabold tracking-widest text-[#F5A623]">
-              PLACEMENT OFFER
-            </p>
-            <p className="mt-1 font-extrabold">
-              {app.postingTitle} — {app.companyName}
-            </p>
-            <p className="mt-1 text-sm text-white/70">
-              Accepted. The company will contact you off-app with reporting
-              details — interviews and onboarding happen outside this app.
-            </p>
-          </div>
+          <OfferCard app={app} />
         )}
         <div className="flex flex-wrap gap-2">
           {app.active && (

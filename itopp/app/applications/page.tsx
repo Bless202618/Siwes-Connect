@@ -53,6 +53,10 @@ export default async function ApplicationsPage() {
           myRating: myRatingMap.get(a.id) ?? null,
           createdAt: a.createdAt.toISOString(),
           updatedAt: a.updatedAt.toISOString(),
+          durationMonths: a.posting.durationMonths,
+          departments: a.posting.departments,
+          hasStipend: a.posting.hasStipend,
+          postingCreatedAt: a.posting.createdAt.toISOString(),
         }))}
       />
       <p className="text-sm">
