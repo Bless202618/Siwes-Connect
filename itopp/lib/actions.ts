@@ -11,7 +11,7 @@ import {
   hashPassword,
   verifyPassword,
 } from "./auth";
-import { DEPARTMENTS, LEVELS, REPORT_REASONS, INSTITUTIONS } from "./options";
+import { DEPARTMENTS, LEVELS, REPORT_REASONS, INSTITUTIONS, isSchoolEmail } from "./options";
 
 export type ActionResult = { ok: true; role?: string } | { ok: false; error: string };
 
@@ -35,6 +35,14 @@ export async function signupAction(input: {
   if (!parsed.success) return { ok: false, error: "Check the form and try again." };
   const { name, email, password, role } = parsed.data;
 
+  if (role === "student" && !isSchoolEmail(email)) {
+    return {
+      ok: false,
+      error:
+        "Students must sign up with a school email (e.g. you@students.yourschool.edu.ng). Personal emails like Gmail are not accepted.",
+    };
+  }
+
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) return { ok: false, error: "An account with this email already exists." };
 
@@ -48,6 +56,22 @@ export async function signupAction(input: {
     },
   });
   await createSession(user.id);
+
+  // Welcome note for the new user: what happens next.
+  await db.notification.create({
+    data: {
+      userId: user.id,
+      type: "welcome",
+      title:
+        role === "student"
+          ? "Welcome! Get verified to unlock everything"
+          : "Welcome! Get verified to start hiring",
+      body:
+        role === "student"
+          ? "Step 1: complete your student profile with school ID. Step 2: we review within 24 hours. Verified students can apply to openings."
+          : "Step 1: complete your company profile with CAC proof. Step 2: we review within 24 hours. Verified companies can publish openings.",
+    },
+  });
 
   // Tell every admin (shows in your Notifications + nav counter).
   const admins = await db.user.findMany({

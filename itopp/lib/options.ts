@@ -53,7 +53,54 @@ export const DEPARTMENTS: [string, ...string[]] = [
   "Medical Laboratory Science",
 ];
 
-export const LEVELS: [string, ...string[]] = ["400 Level", "500 Level"];
+// Personal email providers — never accepted for student signup.
+export const PERSONAL_EMAIL_DOMAINS: string[] = [
+  "gmail.com",
+  "yahoo.com",
+  "yahoo.co.uk",
+  "hotmail.com",
+  "outlook.com",
+  "live.com",
+  "icloud.com",
+  "proton.me",
+  "protonmail.com",
+  "aol.com",
+  "zoho.com",
+  "yandex.com",
+  "mail.com",
+  "gmx.com",
+];
+
+// Official school email domains (exact or any subdomain, e.g.
+// firstname.lastname@students.unilag.edu.ng). Correct any entry.
+export const SCHOOL_EMAIL_DOMAINS: [string, ...string[]] = [
+  "unilag.edu.ng",
+  "ui.edu.ng",
+  "oauife.edu.ng",
+  "unn.edu.ng",
+  "abu.edu.ng",
+  "uniben.edu",
+  "unilorin.edu.ng",
+  "lasu.edu.ng",
+  "oouagoiwoye.edu.ng",
+  "futa.edu.ng",
+  "futminna.edu.ng",
+  "futo.edu.ng",
+  "yabatech.edu.ng",
+  "auchipoly.edu.ng",
+  "kadunapolytechnic.edu.ng",
+  "covenantuniversity.edu.ng",
+  "babcock.edu.ng",
+];
+
+export function isSchoolEmail(email: string): boolean {
+  const domain = email.trim().toLowerCase().split("@")[1] ?? "";
+  if (!domain || PERSONAL_EMAIL_DOMAINS.includes(domain)) return false;
+  if (domain.endsWith(".edu.ng")) return true;
+  return SCHOOL_EMAIL_DOMAINS.some(
+    (d) => domain === d || domain.endsWith(`.${d}`)
+  );
+}
 
 // Nigerian banks for the stipend account section (self-reported).
 export const BANKS: [string, ...string[]] = [

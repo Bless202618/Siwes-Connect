@@ -60,10 +60,20 @@ export function SignupForm() {
         <div>
           <label className="mb-1 block text-sm font-semibold">Email</label>
           <Input
-            placeholder="you@example.com"
+            placeholder={
+              role === "student"
+                ? "you@students.yourschool.edu.ng"
+                : "you@company.com"
+            }
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          {role === "student" && (
+            <p className="mt-1 text-xs font-semibold text-[#0C6B3C]">
+              School email only — Gmail, Yahoo and other personal emails are
+              rejected for students.
+            </p>
+          )}
         </div>
         <div>
           <label className="mb-1 block text-sm font-semibold">Password</label>

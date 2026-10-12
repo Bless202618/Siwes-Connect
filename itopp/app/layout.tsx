@@ -5,6 +5,7 @@ import { Geist_Mono, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { InstallButton } from "@/components/pwa/install-button";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { TabBar } from "@/components/layout/tab-bar";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -93,6 +94,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   <Link href="/dashboard" className="hidden hover:text-[#9ADBB0] sm:block">
                     Dashboard
                   </Link>
+                  <LogoutButton iconOnly />
                 </>
               ) : (
                 <Link href="/login" className="hover:text-[#9ADBB0]">
