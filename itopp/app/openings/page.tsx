@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { Search, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { SaveButton } from "@/components/openings/save-button";
 import { PageHeader } from "@/components/layout/page-header";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -19,6 +20,8 @@ export interface FeedPosting {
   skillsRequired: string[];
   companyName: string;
   hasStipend: boolean;
+  createdAt: number;
+  saved: boolean;
   score: number;
   reasons: string[];
 }
@@ -31,14 +34,26 @@ export default async function OpeningsPage({
   const q = await searchParams;
   const fDept = typeof q.dept === "string" ? q.dept : "";
   const fLoc = typeof q.loc === "string" ? q.loc.trim() : "";
-  const fSkill = typeof q.skill === "string" ? q.skill.trim().toLowerCase() : "";
+  const fSkillRaw = typeof q.skill === "string" ? q.skill : "";
+  const fSkill = fSkillRaw.trim().toLowerCase();
   const fMaxDur = typeof q.dur === "string" && q.dur !== "" ? Number(q.dur) : 0;
+  const savedOnly = q.saved === "1";
 
   const me = await getSessionUser();
   const profile =
     me?.role === "student"
       ? await db.studentProfile.findUnique({ where: { userId: me.id } })
       : null;
+  const canSave = me?.role === "student" && me.status === "verified";
+  const savedIds =
+    me?.role === "student"
+      ? (
+          await db.savedPosting.findMany({
+            where: { userId: me.id },
+            select: { postingId: true },
+          })
+        ).map((s) => s.postingId)
+      : [];
 
   const all = await db.posting.findMany({
     where: { status: "active" },
@@ -63,6 +78,8 @@ export default async function OpeningsPage({
       skillsRequired: p.skillsRequired,
       companyName: p.company.companyName,
       hasStipend: p.hasStipend,
+      createdAt: p.createdAt.getTime(),
+      saved: savedIds.includes(p.id),
     };
     if (profile) {
       const m = matchScore(
@@ -75,6 +92,7 @@ export default async function OpeningsPage({
   });
 
   const filtered = scored.filter((p) => {
+    if (savedOnly && !p.saved) return false;
     if (fDept && !p.departments.includes(fDept)) return false;
     if (fLoc && !p.location.toLowerCase().includes(fLoc.toLowerCase()))
       return false;
@@ -97,56 +115,82 @@ export default async function OpeningsPage({
   ).slice(0, 8);
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-4 py-10">
-      <PageHeader
-        eyebrow="DISCOVERY"
-        title="Openings"
-        description={
-          profile
-            ? "Ranked for you first — every card shows why it matches."
-            : "Verified openings from verified companies."
-        }
-      />
+    <main className="mx-auto max-w-3xl space-y-4 px-4 py-8">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">
+            Verified SIWES Placements
+          </h1>
+          <p className="text-sm text-[#64748B]">
+            Verified placements for ITF-approved disciplines
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full border border-[#0C6B3C]/30 bg-[#E9F7EE] px-3 py-1 text-xs font-extrabold text-[#0C6B3C]">
+          {filtered.length} Open
+        </span>
+      </div>
 
       <form
         method="GET"
         action="/openings"
-        className="grid gap-2 rounded-xl border bg-white p-4 sm:grid-cols-4"
+        className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-1 shadow-sm"
       >
-        <select
-          name="dept"
-          defaultValue={fDept}
-          className="rounded-md border px-3 py-2 text-sm"
-        >
-          <option value="">All departments</option>
-          {DEPARTMENTS.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
-        <Input name="loc" placeholder="Location…" defaultValue={fLoc} />
-        <Input name="skill" placeholder="Skill or keyword…" defaultValue={typeof q.skill === "string" ? q.skill : ""} />
-        <select
-          name="dur"
-          defaultValue={fMaxDur ? String(fMaxDur) : ""}
-          className="rounded-md border px-3 py-2 text-sm"
-        >
-          <option value="">Any duration</option>
-          <option value="3">Up to 3 months</option>
-          <option value="6">Up to 6 months</option>
-          <option value="12">Up to 12 months</option>
-        </select>
+        <Search className="size-5 shrink-0 text-[#64748B]" />
+        <input
+          name="skill"
+          placeholder="Search company, course (e.g. Mechanical, CAD)…"
+          defaultValue={typeof q.skill === "string" ? q.skill : ""}
+          className="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-[#94A3B8]"
+        />
+        {fDept && <input type="hidden" name="dept" value={fDept} />}
         <button
           type="submit"
-          className="rounded-md bg-[#0C6B3C] px-4 py-2 text-sm font-bold text-white sm:col-span-4"
+          className="shrink-0 rounded-xl bg-[#0C6B3C] px-4 py-2 text-sm font-bold text-white"
         >
-          Filter
+          Search
         </button>
       </form>
 
+      <details className="rounded-2xl border bg-white px-4 py-2 text-sm">
+        <summary className="cursor-pointer py-1 font-bold text-[#0B2E1F]">
+          Filters{fLoc || fMaxDur > 0 ? " • on" : ""}
+        </summary>
+        <form method="GET" action="/openings" className="grid gap-2 pb-3 pt-1 sm:grid-cols-3">
+          {fSkillRaw && <input type="hidden" name="skill" value={fSkillRaw} />}
+          <select
+            name="dept"
+            defaultValue={fDept}
+            className="rounded-lg border px-3 py-2 text-sm"
+          >
+            <option value="">All departments</option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+          <Input name="loc" placeholder="Location…" defaultValue={fLoc} />
+          <select
+            name="dur"
+            defaultValue={fMaxDur ? String(fMaxDur) : ""}
+            className="rounded-lg border px-3 py-2 text-sm"
+          >
+            <option value="">Any duration</option>
+            <option value="3">Up to 3 months</option>
+            <option value="6">Up to 6 months</option>
+            <option value="12">Up to 12 months</option>
+          </select>
+          <button
+            type="submit"
+            className="rounded-lg bg-[#0C6B3C] px-4 py-2 text-sm font-bold text-white sm:col-span-3"
+          >
+            Apply filters
+          </button>
+        </form>
+      </details>
+
       <div className="flex gap-2 overflow-x-auto pb-1">
-        <CoursePill label="All Courses" href="/openings" active={!fDept} />
+        <CoursePill label="All Courses" href="/openings" active={!fDept && !savedOnly} />
         {pillDepts.map((d) => (
           <CoursePill
             key={d}
@@ -155,6 +199,13 @@ export default async function OpeningsPage({
             active={fDept === d}
           />
         ))}
+        {canSave && (
+          <CoursePill
+            label="★ Saved"
+            href="/openings?saved=1"
+            active={savedOnly}
+          />
+        )}
       </div>
 
       {profile && matched.length > 0 && (
@@ -179,14 +230,14 @@ export default async function OpeningsPage({
           ) : (
             <div className="space-y-3">
               {matched.map((p) => (
-                <PostingCard key={p.id} p={p} />
+                <PostingCard key={p.id} p={p} canSave={canSave} />
               ))}
             </div>
           )}
           <h2 className="pt-2 text-lg font-bold">Browse all</h2>
           <div className="space-y-3">
             {filtered.map((p) => (
-              <PostingCard key={p.id} p={p} />
+              <PostingCard key={p.id} p={p} canSave={canSave} />
             ))}
           </div>
         </>
@@ -208,7 +259,7 @@ export default async function OpeningsPage({
             {filtered.length === 0 ? (
               <Empty text="No openings right now. Check back soon." />
             ) : (
-              filtered.map((p) => <PostingCard key={p.id} p={p} />)
+              filtered.map((p) => <PostingCard key={p.id} p={p} canSave={canSave} />)
             )}
           </div>
         </>
@@ -217,19 +268,21 @@ export default async function OpeningsPage({
   );
 }
 
-function PostingCard({ p }: { p: FeedPosting }) {
-  const initials = p.companyName
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+function timeAgo(ts: number) {
+  const days = Math.max(0, Math.floor((Date.now() - ts) / 86400000));
+  if (days === 0) return "Posted today";
+  if (days === 1) return "Posted yesterday";
+  if (days < 30) return `Posted ${days}d ago`;
+  return `Posted ${Math.floor(days / 30)}mo ago`;
+}
+
+function PostingCard({ p, canSave }: { p: FeedPosting; canSave: boolean }) {
   let hue = 150;
   for (const ch of p.id) hue = (hue + ch.charCodeAt(0)) % 360;
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <div
-        className="flex items-end justify-between p-4"
+        className="flex items-start justify-between gap-2 p-4 pb-10"
         style={{
           background: `linear-gradient(135deg, hsl(${hue} 45% 22%), hsl(${(hue + 40) % 360} 55% 32%))`,
         }}
@@ -237,24 +290,40 @@ function PostingCard({ p }: { p: FeedPosting }) {
         <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white">
           ✓ ITF-Approved
         </span>
-        <span className="flex size-10 items-center justify-center rounded-full bg-white/20 text-sm font-extrabold text-white">
-          {initials}
-        </span>
+        <SaveButton postingId={p.id} initialSaved={p.saved} canSave={canSave} />
       </div>
-      <CardContent className="flex flex-wrap items-center gap-3 pt-4">
-        <div className="min-w-48 flex-1">
+      <CardContent className="-mt-7 flex flex-wrap items-center gap-3 pt-0">
+        <div className="min-w-48 flex-1 rounded-2xl">
+          <p className="text-lg font-extrabold leading-snug tracking-tight">
+            {p.companyName}
+          </p>
           <Link
             href={`/openings/${p.id}`}
-            className="font-bold hover:text-[#0C6B3C] hover:underline"
+            className="font-bold text-[#0C6B3C] hover:underline"
           >
             {p.title}
           </Link>
-          <p className="text-sm text-[#64748B]">
-            {p.companyName} · {p.location} · {p.durationMonths} months ·{" "}
+          <p className="mt-1 text-sm text-[#64748B]">
+            {p.location} · {p.durationMonths} months · {timeAgo(p.createdAt)} ·{" "}
             <b className={p.hasStipend ? "text-[#0C6B3C]" : "text-[#64748B]"}>
               {p.hasStipend ? "Stipend: Yes" : "Stipend: No"}
             </b>
           </p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {p.departments.slice(0, 2).map((d) => (
+              <span
+                key={d}
+                className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-[#475569]"
+              >
+                {d}
+              </span>
+            ))}
+            {p.departments.length > 2 && (
+              <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-[#475569]">
+                +{p.departments.length - 2}
+              </span>
+            )}
+          </div>
           {p.reasons.length > 0 && (
             <div className="mt-1 flex flex-wrap gap-1.5">
               {p.reasons.map((r) => (

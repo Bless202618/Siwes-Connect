@@ -69,6 +69,7 @@ model User {
   reportsFiled   Report[]        @relation("ReportsFiled")
   notifications  Notification[]
   sessions       Session[]
+  savedPostings  SavedPosting[]
 }
 
 model Session {
@@ -138,6 +139,20 @@ model Posting {
   updatedAt        DateTime      @updatedAt
 
   applications Application[]
+  savedBy      SavedPosting[]
+}
+
+// Student bookmarks on the Discover feed.
+model SavedPosting {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postingId String
+  posting   Posting  @relation(fields: [postingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postingId])
+  @@index([userId])
 }
 
 // NOTE: no stipend/compensation column — out of scope for v1 by PRD.

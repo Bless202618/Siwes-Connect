@@ -815,6 +815,32 @@ export async function resolveReportAction(input: {
 }
 
 // ---------------------------------------------------------------------------
+// Saved postings (Discover bookmarks) — students only.
+// ---------------------------------------------------------------------------
+export async function toggleSaveAction(input: {
+  postingId: string;
+}): Promise<{ ok: true; saved: boolean } | { ok: false; error: string }> {
+  const me = await getSessionUser();
+  if (!me || me.role !== "student") return { ok: false, error: "Students only." };
+  if (typeof input.postingId !== "string" || input.postingId.length < 1) {
+    return { ok: false, error: "Invalid request." };
+  }
+  const existing = await db.savedPosting.findUnique({
+    where: { userId_postingId: { userId: me.id, postingId: input.postingId } },
+  });
+  if (existing) {
+    await db.savedPosting.delete({ where: { id: existing.id } });
+    revalidatePath("/openings");
+    return { ok: true, saved: false };
+  }
+  await db.savedPosting.create({
+    data: { userId: me.id, postingId: input.postingId },
+  });
+  revalidatePath("/openings");
+  return { ok: true, saved: true };
+}
+
+// ---------------------------------------------------------------------------
 // Notifications inbox (Phase 6)
 // ---------------------------------------------------------------------------
 export async function markNotificationsReadAction(): Promise<ActionResult> {
