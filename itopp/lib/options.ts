@@ -53,6 +53,8 @@ export const DEPARTMENTS: [string, ...string[]] = [
   "Medical Laboratory Science",
 ];
 
+export const LEVELS: [string, ...string[]] = ["400 Level", "500 Level"];
+
 // Personal email providers — never accepted for student signup.
 export const PERSONAL_EMAIL_DOMAINS: string[] = [
   "gmail.com",
