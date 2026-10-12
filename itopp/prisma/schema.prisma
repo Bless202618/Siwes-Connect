@@ -90,6 +90,9 @@ model StudentProfile {
   department         String
   level              String
   cgpa               Float
+  institution        String            @default("")
+  matricNumber       String            @default("")
+  preferredDuration  Int               @default(6)
   skills             String[]
   cvName             String?
   cvUrl              String?

@@ -11,7 +11,7 @@ import {
   hashPassword,
   verifyPassword,
 } from "./auth";
-import { DEPARTMENTS, LEVELS, REPORT_REASONS } from "./options";
+import { DEPARTMENTS, LEVELS, REPORT_REASONS, INSTITUTIONS } from "./options";
 
 export type ActionResult = { ok: true; role?: string } | { ok: false; error: string };
 
@@ -149,6 +149,11 @@ const studentSchema = z.object({
   department: z.enum(DEPARTMENTS),
   level: z.enum(LEVELS),
   cgpa: z.number().min(0).max(5),
+  institution: z.enum(INSTITUTIONS),
+  matricNumber: z.string().trim().min(3).max(30),
+  preferredDuration: z.number().int().refine((v) => v === 6 || v === 12, {
+    message: "Pick 6 or 12 months",
+  }),
   skills: z.array(z.string().trim().min(1).max(40)).min(1).max(30),
   cvName: z.string().trim().min(1).max(200),
   idDocName: z.string().trim().min(1).max(200),
@@ -159,6 +164,9 @@ export async function saveStudentProfileAction(input: {
   department: string;
   level: string;
   cgpa: number;
+  institution: string;
+  matricNumber: string;
+  preferredDuration: number;
   skills: string[];
   cvName: string;
   idDocName: string;

@@ -59,8 +59,8 @@ export default async function AdminQueuePage() {
       <VerificationQueue
         pendingStudents={pendingStudents.map((p) => ({
           userId: p.userId,
-          title: p.name,
-          sub: `${p.department} · ${p.level} · CGPA ${p.cgpa} · ${p.skills.join(", ")}`,
+          title: `${p.name} · ${p.matricNumber || "no matric"}`,
+          sub: `${p.institution || "no school"} · ${p.department} · ${p.level} · CGPA ${p.cgpa} · ${p.preferredDuration} mos · ${p.skills.join(", ")}`,
           docs: `CV: ${p.cvName ?? "—"} · ID: ${p.idDocName ?? "—"}`,
         }))}
         pendingCompanies={pendingCompanies.map((p) => ({

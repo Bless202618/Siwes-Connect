@@ -99,8 +99,11 @@ async function main() {
     create: {
       userId: studentUser.id,
       name: "Demo Student",
+      institution: "University of Lagos (UNILAG)",
       department: "Computer Science",
       level: "400 Level",
+      matricNumber: "200401042",
+      preferredDuration: 6,
       cgpa: 4.0,
       skills: ["React", "Git", "SQL"],
       cvName: "demo-cv.pdf",
