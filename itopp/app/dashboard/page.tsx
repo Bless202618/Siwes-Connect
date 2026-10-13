@@ -122,6 +122,9 @@ export default async function DashboardPage() {
           score: best.m.score,
           reasons: best.m.reasons,
           photo: postingPhoto(best.p.departments, best.p.id),
+          dept: studentProfile.department,
+          total: ranked.length,
+          stipendPaid: best.p.hasStipend,
         };
       }
     }

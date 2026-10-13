@@ -9,6 +9,7 @@ import {
   Clock3,
   FileCheck,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,9 @@ export interface TopMatch {
   score: number;
   reasons: string[];
   photo: string;
+  dept: string;
+  total: number;
+  stipendPaid: boolean;
 }
 
 export interface Spotlight {
@@ -71,6 +75,22 @@ function initials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+}
+
+// "University of Lagos (UNILAG)" -> "UNILAG". Falls back to first words.
+function schoolCode(institution: string) {
+  const m = institution.match(/\(([^)]+)\)/);
+  if (m) return m[1];
+  return institution
+    .split(" ")
+    .slice(0, 2)
+    .join(" ");
+}
+
+// "400 Level" -> "400L"
+function shortLevel(level: string) {
+  const m = level.match(/(\d+)/);
+  return m ? `${m[1]}L` : level;
 }
 
 export function DashboardView({ data }: { data: DashboardData | null }) {
@@ -115,21 +135,28 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
               <p className="text-xl font-extrabold tracking-tight">
-                E ku abọ̀, {user.name.split(" ")[0]}
+                E ku abọ̀, {user.name.split(" ")[0]} 👋
               </p>
-              <p className="text-sm text-[#475569]">
+              <p className="mt-0.5 text-sm text-[#475569]">
                 {data.identity.department} · {data.identity.preferredDuration}{" "}
                 Months SIWES
               </p>
             </div>
-            <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-xs font-extrabold text-[#0C6B3C]">
-              {data.identity.level}
-            </span>
+            <div className="flex flex-col items-end gap-1.5">
+              <span className="rounded-full border border-[#0C6B3C]/30 bg-[#E9F7EE] px-3 py-1 text-center text-xs font-extrabold leading-tight text-[#0C6B3C]">
+                {schoolCode(data.identity.institution)}
+                <br />
+                {shortLevel(data.identity.level)}
+              </span>
+            </div>
           </div>
           <div className="flex items-center justify-between gap-2 rounded-2xl border bg-white p-3">
-            <p className="text-sm">
-              <span className="text-[#64748B]">Matric: </span>
-              <b>{data.identity.matricNumber || "—"}</b>
+            <p className="flex items-center gap-2 text-sm">
+              <FileCheck className="size-4 text-[#0C6B3C]" />
+              <span>
+                <span className="text-[#64748B]">Matric: </span>
+                <b>{data.identity.matricNumber || "—"}</b>
+              </span>
             </p>
             <StatusBadge status={user.status} />
           </div>
@@ -182,11 +209,19 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
 
       {data.stats.length > 0 && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {data.stats.map((s) => (
+          {data.stats.map((s, i) => (
             <Link key={s.label} href={s.href}>
               <Card className="transition-shadow hover:shadow-md">
-                <CardContent className="pt-4">
-                  <p className="text-2xl font-extrabold text-[#0B2E1F]">
+                <CardContent className="pt-4 text-center">
+                  <p
+                    className={`text-2xl font-extrabold ${
+                      i === 1
+                        ? "text-[#0C6B3C]"
+                        : i === 2
+                          ? "text-[#EA8600]"
+                          : "text-[#0B2E1F]"
+                    }`}
+                  >
                     {s.value}
                   </p>
                   <p className="text-xs font-semibold text-[#475569]">
@@ -226,90 +261,135 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
               <div className="grid grid-cols-4 gap-2">
                 <QuickTile
                   href="/openings"
+                  tile="bg-[#E9F7EE]"
                   icon={<Briefcase className="size-5 text-[#0C6B3C]" />}
                   label="Find Placement"
                 />
                 <QuickTile
                   href="/applications"
+                  tile="bg-[#E3EDFF]"
                   icon={<Clock3 className="size-5 text-[#2563EB]" />}
                   label="Tracker"
                 />
                 <QuickTile
                   href="/schedule"
+                  tile="bg-[#FEF3E7]"
                   icon={<CalendarDays className="size-5 text-[#D97706]" />}
                   label="Schedule"
                 />
                 <QuickTile
                   href="/student/profile"
+                  tile="bg-[#F1E9FF]"
                   icon={<FileCheck className="size-5 text-[#7C3AED]" />}
-                  label="Vault"
+                  label="SIWES Vault"
                 />
               </div>
-              {data.spotlight && (
-                <Link
-                  href="/applications"
-                  className={`mt-2 block rounded-2xl p-4 ${
-                    data.spotlight.kind === "accepted"
-                      ? "border-2 border-[#F5A623] bg-[#FFFBEB]"
-                      : "bg-[#0A3B22] text-white"
-                  }`}
-                >
-                  <p
-                    className={`text-[11px] font-extrabold tracking-widest ${
-                      data.spotlight.kind === "accepted"
-                        ? "text-[#B45309]"
-                        : "text-[#F5A623]"
-                    }`}
+              {data.spotlight &&
+                (data.spotlight.kind === "shortlisted" ? (
+                  <Link
+                    href="/applications"
+                    className="mt-2 block rounded-2xl bg-[#0A3B22] p-4 text-white"
                   >
-                    {data.spotlight.kind === "accepted"
-                      ? "OFFER RECEIVED"
-                      : "ACTION REQUIRED"}
-                  </p>
-                  <p className="mt-1 font-extrabold">
-                    {data.spotlight.companyName}
-                  </p>
-                  <p
-                    className={`text-sm ${
-                      data.spotlight.kind === "accepted"
-                        ? "text-[#92400E]"
-                        : "text-white/70"
-                    }`}
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="flex items-center gap-1.5 text-sm font-extrabold tracking-wide text-[#F5A623]">
+                        <span className="size-2.5 rounded-full bg-[#F5A623]" />
+                        ACTION REQUIRED
+                      </p>
+                      <span className="shrink-0 rounded-lg bg-white/15 px-2.5 py-1 text-xs font-bold">
+                        {data.spotlight.when}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-lg font-extrabold leading-snug">
+                      {data.spotlight.companyName}
+                    </p>
+                    <p className="text-sm text-white/70">
+                      {data.spotlight.postingTitle} · Shortlisted — watch your
+                      email and phone
+                    </p>
+                    <div className="my-3 border-t border-white/10" />
+                    <div className="flex items-center justify-between gap-2 text-sm">
+                      <span className="text-white/70">
+                        Stage 2 of 3 · Timeline updated
+                      </span>
+                      <span className="flex items-center gap-1 font-bold text-[#F5A623]">
+                        View Application <ArrowRight className="size-4" />
+                      </span>
+                    </div>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/applications"
+                    className="mt-2 flex items-center gap-3 rounded-2xl border-2 border-[#F5A623] bg-[#FFFBEB] p-4"
                   >
-                    {data.spotlight.postingTitle} ·{" "}
-                    {data.spotlight.stipendPaid ? "Stipend paid" : "No stipend"}
-                  </p>
-                  <p className="mt-2 flex items-center gap-1 text-sm font-bold text-[#0C6B3C]">
-                    View application <ArrowRight className="size-4" />
-                  </p>
-                </Link>
-              )}
-              {data.topMatch && (
-                <Link
-                  href={`/openings/${data.topMatch.id}`}
-                  className="mt-2 block overflow-hidden rounded-2xl border bg-white"
-                >
-                  <div className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={data.topMatch.photo}
-                      alt={`${data.topMatch.companyName} workplace`}
-                      loading="lazy"
-                      className="h-36 w-full object-cover"
-                    />
-                    <span className="absolute left-3 top-3 rounded-full bg-[#0A3B22]/90 px-3 py-1 text-[11px] font-extrabold tracking-widest text-[#F5A623]">
-                      TOP MATCH · {data.topMatch.score}% FIT
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#F5A623] text-lg font-extrabold text-white">
+                      ★
                     </span>
-                  </div>
-                  <div className="p-4">
-                    <p className="font-extrabold">{data.topMatch.title}</p>
-                    <p className="text-sm text-[#64748B]">
-                      {data.topMatch.companyName} · {data.topMatch.location}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-extrabold">
+                        {data.spotlight.companyName} Offer Received
+                      </span>
+                      <span className="block truncate text-sm text-[#92400E]">
+                        {data.spotlight.stipendPaid
+                          ? "Stipend paid · "
+                          : "Unpaid · "}
+                        Company will contact you
+                      </span>
+                    </span>
+                    <ArrowRight className="size-5 shrink-0 text-[#B45309]" />
+                  </Link>
+                ))}
+              {data.topMatch && (
+                <>
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="flex items-center gap-1.5 font-extrabold">
+                      <Sparkles className="size-4 text-[#F5A623]" />
+                      Top Match For {data.topMatch.dept}
                     </p>
-                    <p className="mt-2 flex items-center gap-1 text-sm font-bold text-[#0C6B3C]">
-                      View details <ArrowRight className="size-4" />
-                    </p>
+                    <Link
+                      href="/openings"
+                      className="text-sm font-bold text-[#0C6B3C]"
+                    >
+                      See All ({data.topMatch.total})
+                    </Link>
                   </div>
-                </Link>
+                  <Link
+                    href={`/openings/${data.topMatch.id}`}
+                    className="block overflow-hidden rounded-2xl border bg-white"
+                  >
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={data.topMatch.photo}
+                        alt={`${data.topMatch.companyName} workplace`}
+                        loading="lazy"
+                        className="h-44 w-full object-cover"
+                      />
+                      <span className="absolute left-3 top-3 rounded-full bg-[#0A3B22]/90 px-3 py-1 text-xs font-bold text-white">
+                        ✓ ITF-Approved
+                      </span>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-lg font-extrabold leading-snug">
+                        {data.topMatch.companyName}
+                      </p>
+                      <p className="font-bold text-[#0C6B3C]">
+                        {data.topMatch.title}
+                      </p>
+                      <p className="mt-1 text-sm text-[#64748B]">
+                        {data.topMatch.location} ·{" "}
+                        {data.topMatch.stipendPaid ? "Stipend: Yes" : "Stipend: No"}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between border-t pt-2 text-sm">
+                        <span className="font-extrabold text-[#F5A623]">
+                          {data.topMatch.score}% Fit
+                        </span>
+                        <span className="flex items-center gap-1 font-bold text-[#0C6B3C]">
+                          View Details <ArrowRight className="size-4" />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </>
               )}
             </>
           )}
@@ -346,10 +426,12 @@ function ActionLink({ href, label }: { href: string; label: string }) {
 
 function QuickTile({
   href,
+  tile,
   icon,
   label,
 }: {
   href: string;
+  tile: string;
   icon: React.ReactNode;
   label: string;
 }) {
@@ -358,7 +440,7 @@ function QuickTile({
       href={href}
       className="flex flex-col items-center gap-1.5 rounded-2xl border bg-white px-2 py-4 text-center transition-shadow hover:shadow-md"
     >
-      <span className="flex size-10 items-center justify-center rounded-xl bg-[#E9F7EE]">
+      <span className={`flex size-10 items-center justify-center rounded-xl ${tile}`}>
         {icon}
       </span>
       <span className="text-xs font-bold">{label}</span>
