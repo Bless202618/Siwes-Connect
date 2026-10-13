@@ -15,6 +15,7 @@ enum Role {
   student
   company
   admin
+  agent
 }
 
 enum VerificationState {
@@ -70,6 +71,8 @@ model User {
   notifications  Notification[]
   sessions       Session[]
   savedPostings  SavedPosting[]
+  agentProfile   AgentProfile?
+  accommodations Accommodation[]
 }
 
 model Session {
@@ -223,4 +226,49 @@ model VerificationReview {
   decision  VerificationState
   reason    String?
   decidedAt DateTime          @default(now())
+}
+
+// House agents: verified individuals/agencies listing student housing.
+model AgentProfile {
+  id                 String            @id @default(cuid())
+  userId             String            @unique
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agencyName         String
+  phone              String
+  areas              String[]
+  docName            String?
+  verificationStatus VerificationState @default(pending)
+  reviewReason       String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+enum AccommodationKind {
+  agent_opening
+  roommate_seeking
+  roommate_offer
+}
+
+enum AccommodationStatus {
+  open
+  closed
+}
+
+// Housing openings (agents) + roommate pairing posts (students sharing an axis).
+model Accommodation {
+  id        String              @id @default(cuid())
+  posterId  String
+  poster    User                @relation(fields: [posterId], references: [id], onDelete: Cascade)
+  kind      AccommodationKind
+  title     String
+  axis      String
+  price     String?
+  note      String?
+  phone     String
+  status    AccommodationStatus @default(open)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([status, createdAt])
+  @@index([axis])
 }

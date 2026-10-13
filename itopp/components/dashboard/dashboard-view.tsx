@@ -10,6 +10,7 @@ import {
   FileCheck,
   ArrowRight,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,8 +120,13 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
   const isStudent = user.role === "student";
   const isCompany = user.role === "company";
   const isAdmin = user.role === "admin";
+  const isAgent = user.role === "agent";
   const profile = isStudent ? data.studentProfile : data.companyProfile;
-  const profileHref = isStudent ? "/student/profile" : "/company/profile";
+  const profileHref = isStudent
+    ? "/student/profile"
+    : isAgent
+      ? "/agent/profile"
+      : "/company/profile";
 
   async function logout() {
     setBusy(true);
@@ -284,6 +290,25 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                   label="SIWES Vault"
                 />
               </div>
+              <div className="mt-2">
+                <Link
+                  href="/community"
+                  className="flex items-center gap-3 rounded-2xl bg-[#0A3B22] p-4 text-white"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                    <Users className="size-5 text-[#F5A623]" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block text-[11px] font-extrabold tracking-widest text-[#F5A623]">
+                      COMMUNITY
+                    </span>
+                    <span className="block text-sm font-bold">
+                      Connect across schools · pair for housing
+                    </span>
+                  </span>
+                  <ArrowRight className="size-5 shrink-0" />
+                </Link>
+              </div>
               {data.spotlight &&
                 (data.spotlight.kind === "shortlisted" ? (
                   <Link
@@ -397,6 +422,12 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
             <>
               <ActionLink href="/company/profile" label="My company profile" />
               <ActionLink href="/company/postings" label="My openings" />
+            </>
+          )}
+          {isAgent && (
+            <>
+              <ActionLink href="/agent/profile" label="My agency profile" />
+              <ActionLink href="/community" label="Community housing" />
             </>
           )}
           {isAdmin && (

@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { reviewCompanyAction, reviewStudentAction } from "@/lib/actions";
+import { reviewAgentAction, reviewCompanyAction, reviewStudentAction } from "@/lib/actions";
 
 export interface PendingItem {
   userId: string;
@@ -33,21 +33,23 @@ export interface DecidedItem {
 export function VerificationQueue({
   pendingStudents,
   pendingCompanies,
+  pendingAgents,
   decided,
 }: {
   pendingStudents: PendingItem[];
   pendingCompanies: PendingItem[];
+  pendingAgents: PendingItem[];
   decided: DecidedItem[];
 }) {
   const [rejectId, setRejectId] = useState<string | null>(null);
-  const [rejectKind, setRejectKind] = useState<"student" | "company" | null>(
-    null
-  );
+  const [rejectKind, setRejectKind] = useState<
+    "student" | "company" | "agent" | null
+  >(null);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function approve(
-    kind: "student" | "company",
+    kind: "student" | "company" | "agent",
     userId: string,
     name: string
   ) {
@@ -55,7 +57,9 @@ export function VerificationQueue({
     const res =
       kind === "student"
         ? await reviewStudentAction({ userId, decision: "verified" })
-        : await reviewCompanyAction({ userId, decision: "verified" });
+        : kind === "company"
+          ? await reviewCompanyAction({ userId, decision: "verified" })
+          : await reviewAgentAction({ userId, decision: "verified" });
     setBusy(false);
     if (!res.ok) {
       toast.error(res.error);
@@ -71,18 +75,17 @@ export function VerificationQueue({
       return;
     }
     setBusy(true);
+    const payload = {
+      userId: rejectId,
+      decision: "rejected" as const,
+      reason: reason.trim(),
+    };
     const res =
       rejectKind === "student"
-        ? await reviewStudentAction({
-            userId: rejectId,
-            decision: "rejected",
-            reason: reason.trim(),
-          })
-        : await reviewCompanyAction({
-            userId: rejectId,
-            decision: "rejected",
-            reason: reason.trim(),
-          });
+        ? await reviewStudentAction(payload)
+        : rejectKind === "company"
+          ? await reviewCompanyAction(payload)
+          : await reviewAgentAction(payload);
     setBusy(false);
     if (!res.ok) {
       toast.error(res.error);
@@ -139,6 +142,31 @@ export function VerificationQueue({
               onAskReject={(id) => {
                 setRejectId(id);
                 setRejectKind("company");
+                setReason("");
+              }}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Pending agent verifications ({pendingAgents.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {pendingAgents.length === 0 ? (
+            <p className="text-sm text-[#6B7280]">Nothing waiting. Good.</p>
+          ) : (
+            <Rows
+              items={pendingAgents}
+              kind="agent"
+              busy={busy}
+              onApprove={approve}
+              onAskReject={(id) => {
+                setRejectId(id);
+                setRejectKind("agent");
                 setReason("");
               }}
             />
@@ -218,10 +246,10 @@ function Rows({
   onAskReject,
 }: {
   items: PendingItem[];
-  kind: "student" | "company";
+  kind: "student" | "company" | "agent";
   busy: boolean;
   onApprove: (
-    kind: "student" | "company",
+    kind: "student" | "company" | "agent",
     userId: string,
     name: string
   ) => void;

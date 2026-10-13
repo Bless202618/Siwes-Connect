@@ -22,7 +22,7 @@ const signupSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name").max(100),
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
   password: z.string().min(6, "Password needs at least 6 characters").max(100),
-  role: z.enum(["student", "company"]),
+  role: z.enum(["student", "company", "agent"]),
 });
 
 export async function signupAction(input: {
@@ -51,7 +51,7 @@ export async function signupAction(input: {
       name,
       email,
       passwordHash: await hashPassword(password),
-      role: role === "company" ? "company" : "student",
+      role: role === "company" ? "company" : role === "agent" ? "agent" : "student",
       status: "pending",
     },
   });
@@ -355,6 +355,151 @@ export async function reviewCompanyAction(input: {
   ]);
   revalidatePath("/admin/queue");
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Agents + community housing (social session)
+// ---------------------------------------------------------------------------
+const agentSchema = z.object({
+  agencyName: z.string().trim().min(2).max(120),
+  phone: z.string().trim().min(7).max(30),
+  areas: z.array(z.string().trim().min(1).max(60)).min(1).max(10),
+  docName: z.string().trim().max(200),
+});
+
+export async function saveAgentProfileAction(input: {
+  agencyName: string;
+  phone: string;
+  areas: string[];
+  docName: string;
+}): Promise<ActionResult> {
+  const me = await getSessionUser();
+  if (!me || me.role !== "agent") return { ok: false, error: "Agents only." };
+  const parsed = agentSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Check the form and try again." };
+
+  await db.agentProfile.upsert({
+    where: { userId: me.id },
+    create: { userId: me.id, ...parsed.data, verificationStatus: "pending", reviewReason: null },
+    update: { ...parsed.data, verificationStatus: "pending", reviewReason: null },
+  });
+  await db.user.update({ where: { id: me.id }, data: { status: "pending" } });
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function reviewAgentAction(input: {
+  userId: string;
+  decision: "verified" | "rejected";
+  reason?: string;
+}): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { ok: false, error: "Admin only." };
+  const parsed = reviewSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid review." };
+  if (parsed.data.decision === "rejected" && !parsed.data.reason) {
+    return { ok: false, error: "A rejection needs a reason." };
+  }
+  const profile = await db.agentProfile.findUnique({
+    where: { userId: parsed.data.userId },
+  });
+  if (!profile) return { ok: false, error: "Profile not found." };
+
+  await db.$transaction([
+    db.agentProfile.update({
+      where: { userId: parsed.data.userId },
+      data: {
+        verificationStatus: parsed.data.decision,
+        reviewReason: parsed.data.decision === "rejected" ? parsed.data.reason ?? "" : null,
+      },
+    }),
+    db.user.update({
+      where: { id: parsed.data.userId },
+      data: { status: parsed.data.decision === "verified" ? "verified" : "pending" },
+    }),
+    db.verificationReview.create({
+      data: {
+        kind: "agent",
+        profileId: profile.id,
+        reviewer: admin.email,
+        decision: parsed.data.decision,
+        reason: parsed.data.reason ?? null,
+      },
+    }),
+  ]);
+  revalidatePath("/admin/queue");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+const accommodationSchema = z.object({
+  kind: z.enum(["agent_opening", "roommate_seeking", "roommate_offer"]),
+  title: z.string().trim().min(4).max(120),
+  axis: z.string().trim().min(2).max(80),
+  price: z.string().trim().max(40),
+  note: z.string().trim().max(1000),
+  phone: z.string().trim().min(7).max(30),
+});
+
+export async function createAccommodationAction(input: {
+  kind: string;
+  title: string;
+  axis: string;
+  price: string;
+  note: string;
+  phone: string;
+}): Promise<ActionResult> {
+  const me = await getSessionUser();
+  if (!me) return { ok: false, error: "Log in first." };
+  if (me.status !== "verified") {
+    return { ok: false, error: "Get verified before posting." };
+  }
+  const parsed = accommodationSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Check the form and try again." };
+
+  // Agents list housing. Students pair up (seeking a roommate or offering space).
+  if (parsed.data.kind === "agent_opening" && me.role !== "agent") {
+    return { ok: false, error: "Only verified agents list housing." };
+  }
+  if (parsed.data.kind !== "agent_opening" && me.role !== "student") {
+    return { ok: false, error: "Only verified students post roommate ads." };
+  }
+
+  await db.accommodation.create({
+    data: {
+      posterId: me.id,
+      kind: parsed.data.kind,
+      title: parsed.data.title,
+      axis: parsed.data.axis,
+      price: parsed.data.price || null,
+      note: parsed.data.note || null,
+      phone: parsed.data.phone,
+      status: "open",
+    },
+  });
+  revalidatePath("/community");
+  return { ok: true };
+}
+
+export async function closeAccommodationAction(input: {
+  id: string;
+}): Promise<ActionResult> {
+  const me = await getSessionUser();
+  if (!me) return { ok: false, error: "Log in first." };
+  const post =
+    typeof input.id === "string"
+      ? await db.accommodation.findUnique({ where: { id: input.id } })
+      : null;
+  if (!post) return { ok: false, error: "Post not found." };
+  if (post.posterId !== me.id && me.role !== "admin") {
+    return { ok: false, error: "Not allowed." };
+  }
+  await db.accommodation.update({
+    where: { id: post.id },
+    data: { status: post.status === "open" ? "closed" : "open" },
+  });
+  revalidatePath("/community");
   return { ok: true };
 }
 

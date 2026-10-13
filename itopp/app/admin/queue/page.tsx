@@ -12,7 +12,7 @@ export default async function AdminQueuePage() {
   if (!me) redirect("/login");
   if (me.role !== "admin") redirect("/dashboard");
 
-  const [pendingStudents, pendingCompanies, doneStudents, doneCompanies] =
+  const [pendingStudents, pendingCompanies, pendingAgents, doneStudents, doneCompanies, doneAgents] =
     await Promise.all([
       db.studentProfile.findMany({
         where: { verificationStatus: "pending" },
@@ -22,12 +22,21 @@ export default async function AdminQueuePage() {
         where: { verificationStatus: "pending" },
         orderBy: { createdAt: "asc" },
       }),
+      db.agentProfile.findMany({
+        where: { verificationStatus: "pending" },
+        orderBy: { createdAt: "asc" },
+      }),
       db.studentProfile.findMany({
         where: { verificationStatus: { not: "pending" } },
         orderBy: { updatedAt: "desc" },
         take: 20,
       }),
       db.companyProfile.findMany({
+        where: { verificationStatus: { not: "pending" } },
+        orderBy: { updatedAt: "desc" },
+        take: 20,
+      }),
+      db.agentProfile.findMany({
         where: { verificationStatus: { not: "pending" } },
         orderBy: { updatedAt: "desc" },
         take: 20,
@@ -45,6 +54,12 @@ export default async function AdminQueuePage() {
       key: `c-${p.id}`,
       name: p.companyName,
       kind: "Company",
+      status: p.verificationStatus as DecidedItem["status"],
+    })),
+    ...doneAgents.map((p) => ({
+      key: `a-${p.id}`,
+      name: p.agencyName,
+      kind: "Agent",
       status: p.verificationStatus as DecidedItem["status"],
     })),
   ];
@@ -67,6 +82,12 @@ export default async function AdminQueuePage() {
           userId: p.userId,
           title: p.companyName,
           sub: `CAC ${p.cacNumber} · ${p.contactName} · ${p.phone} · ${p.website}`,
+          docs: `Doc: ${p.docName ?? "—"}`,
+        }))}
+        pendingAgents={pendingAgents.map((p) => ({
+          userId: p.userId,
+          title: p.agencyName,
+          sub: `${p.phone} · Areas: ${p.areas.join(", ") || "—"}`,
           docs: `Doc: ${p.docName ?? "—"}`,
         }))}
         decided={decided}

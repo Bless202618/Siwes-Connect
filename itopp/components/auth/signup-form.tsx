@@ -20,7 +20,7 @@ export function SignupForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"student" | "company">("student");
+  const [role, setRole] = useState<"student" | "company" | "agent">("student");
   const [busy, setBusy] = useState(false);
 
   async function submit() {
@@ -40,7 +40,13 @@ export function SignupForm() {
       return;
     }
     toast.success("Account created. Complete your profile for verification.");
-    router.push(role === "company" ? "/company/profile" : "/student/profile");
+    router.push(
+      role === "company"
+        ? "/company/profile"
+        : role === "agent"
+          ? "/agent/profile"
+          : "/student/profile"
+    );
   }
 
   return (
@@ -90,7 +96,7 @@ export function SignupForm() {
           </label>
           <Select
             value={role}
-            onValueChange={(v) => setRole(v as "student" | "company")}
+            onValueChange={(v) => setRole(v as "student" | "company" | "agent")}
           >
             <SelectTrigger>
               <SelectValue />
@@ -98,6 +104,7 @@ export function SignupForm() {
             <SelectContent>
               <SelectItem value="student">Student (400-level)</SelectItem>
               <SelectItem value="company">Company (hiring)</SelectItem>
+              <SelectItem value="agent">House agent (housing)</SelectItem>
             </SelectContent>
           </Select>
         </div>
