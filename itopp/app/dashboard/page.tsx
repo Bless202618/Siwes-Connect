@@ -80,7 +80,11 @@ export default async function DashboardPage() {
         postingId: spotlightApp.postingId,
         postingTitle: spotlightApp.posting.title,
         companyName: spotlightApp.posting.company.companyName,
-        when: spotlightApp.updatedAt.toLocaleDateString(),
+        when: spotlightApp.updatedAt.toLocaleDateString(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        }),
         stipendPaid: spotlightApp.posting.hasStipend,
       };
     }

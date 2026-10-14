@@ -251,19 +251,15 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
         />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>What next?</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          {isStudent && (
-            <>
-              <p className="mb-1 flex items-center justify-between text-xs font-extrabold tracking-widest text-[#64748B]">
-                QUICK ACTIONS
-                <span className="font-semibold normal-case tracking-normal text-[#0C6B3C]">
-                  Offline ready
-                </span>
-              </p>
+      {isStudent && (
+        <>
+          <div>
+            <p className="mb-2 flex items-center justify-between">
+              <span className="text-lg font-extrabold">Quick Actions</span>
+              <span className="text-xs font-semibold text-[#0C6B3C]">
+                Offline Ready
+              </span>
+            </p>
               <div className="grid grid-cols-4 gap-2">
                 <QuickTile
                   href="/openings"
@@ -290,6 +286,7 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                   label="SIWES Vault"
                 />
               </div>
+            </div>
               <div className="mt-2">
                 <Link
                   href="/community"
@@ -318,9 +315,9 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                     <div className="flex items-start justify-between gap-2">
                       <p className="flex items-center gap-1.5 text-sm font-extrabold tracking-wide text-[#F5A623]">
                         <span className="size-2.5 rounded-full bg-[#F5A623]" />
-                        ACTION REQUIRED
+                        ACTION REQUIRED: SHORTLISTED
                       </p>
-                      <span className="shrink-0 rounded-lg bg-white/15 px-2.5 py-1 text-xs font-bold">
+                      <span className="shrink-0 rounded-lg bg-white/15 px-2.5 py-1 text-center text-xs font-bold leading-tight">
                         {data.spotlight.when}
                       </span>
                     </div>
@@ -418,6 +415,12 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
               )}
             </>
           )}
+          {(isCompany || isAgent || isAdmin) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>What next?</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
           {isCompany && (
             <>
               <ActionLink href="/company/profile" label="My company profile" />
@@ -438,8 +441,9 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
               <ActionLink href="/admin/metrics" label="Trust metrics" />
             </>
           )}
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          )}
     </div>
   );
 }
