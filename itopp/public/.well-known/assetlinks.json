@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ng.siweslink.app",
+      "sha256_cert_fingerprints": [
+        "DA:DA:AB:03:32:9C:0F:67:80:22:10:F2:DB:84:10:B7:49:2B:36:98:EE:CF:BD:90:70:BB:66:14:A0:86:32:E6"
+      ]
+    }
+  }
+]
