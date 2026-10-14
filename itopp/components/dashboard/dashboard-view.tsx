@@ -283,7 +283,7 @@ export function DashboardView({ data }: { data: DashboardData | null }) {
                   href="/student/profile"
                   tile="bg-[#F1E9FF]"
                   icon={<FileCheck className="size-5 text-[#7C3AED]" />}
-                  label="SIWES Vault"
+                  label="My Vault"
                 />
               </div>
             </div>
