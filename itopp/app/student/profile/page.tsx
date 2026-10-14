@@ -8,7 +8,7 @@ import { VerificationSteps } from "@/components/verification-steps";
 import { ShareVerifyButton } from "@/components/profile/share-verify-button";
 
 const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://siwes-connect.vercel.app";
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://siwes-link.vercel.app";
 
 function maskAccount(n: string) {
   if (!/^[0-9]{10}$/.test(n)) return "—";
