@@ -22,13 +22,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SIWES Connect — Verified IT Placements",
+  title: "Siwes-Link — Verified IT Placements",
   description:
     "Verified companies meet verified students. Matched openings, structured applications, clear status tracking.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "SIWES Connect",
+    title: "Siwes-Link",
     statusBarStyle: "black-translucent",
   },
 };
@@ -54,15 +54,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#F3F7F4] text-[#0B2E1F] pb-16 md:pb-0">
-        <header className="bg-[#0A3B22] text-white">
+        <header className="sticky top-0 z-40 bg-[#0A3B22]/90 text-white backdrop-blur-md">
           <nav className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-3">
             <Link href="/" className="flex items-center gap-2">
               <span className="flex size-9 items-center justify-center rounded-xl bg-white/15 text-sm font-extrabold">
-                SC
+                SL
               </span>
               <span className="leading-tight">
                 <span className="flex items-center gap-1.5 text-base font-extrabold">
-                  SIWES Connect
+                  Siwes-Link
                   <span className="rounded bg-[#F5A623] px-1.5 py-0.5 text-[10px] font-extrabold text-[#0A3B22]">
                     NG
                   </span>
@@ -110,7 +110,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="bg-[#0B2E1F] text-white">
           <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-base font-extrabold">SIWES Connect</p>
+              <p className="text-base font-extrabold">Siwes-Link</p>
               <p className="text-white/70">
                 Verified placements for SIWES students.
               </p>

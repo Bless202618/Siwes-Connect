@@ -1,4 +1,4 @@
-# SIWES Connect — Detailed Implementation Plan (v2)
+# Siwes-Link — Detailed Implementation Plan (v2)
 
 Source of truth: `Untitled document (1).md` (PRD v1) + `README.md`.
 Current repo state: docs-only (`README.md`, PRD, `.gitignore` for `.env`, empty `.env.example`). No app code yet. Remote: `https://github.com/Bless202618/badge` (public, branch `main`).

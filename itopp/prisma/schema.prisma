@@ -1,4 +1,4 @@
-// SIWES Connect database blueprint — real Postgres (works with Supabase Postgres,
+// Siwes-Link database blueprint — real Postgres (works with Supabase Postgres,
 // Neon, or local PostgreSQL). Phases 1–6 entities. Out of scope for v1:
 // no university tables, no stipend columns, no messaging tables.
 

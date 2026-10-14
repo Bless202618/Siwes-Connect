@@ -14,7 +14,7 @@ export function AuthShell({
     <main className="mx-auto grid max-w-4xl gap-6 px-4 py-10 lg:grid-cols-2 lg:items-center">
       <div className="hidden rounded-2xl bg-[#0A3B22] p-8 text-white lg:block">
         <Link href="/" className="text-xl font-extrabold">
-          SIWES Connect
+          Siwes-Link
         </Link>
         <h2 className="mt-6 text-3xl font-extrabold leading-tight">
           {title}

@@ -23,7 +23,7 @@ export default async function VerifyPage({
     <main className="mx-auto max-w-md space-y-4 px-4 py-10">
       <div className="rounded-2xl bg-[#0A3B22] p-5 text-white">
         <p className="flex items-center gap-2 text-sm font-bold text-[#4ADE80]">
-          <ShieldCheck className="size-5" /> SIWES Connect Verified Student
+          <ShieldCheck className="size-5" /> Siwes-Link Verified Student
         </p>
         <p className="mt-2 text-xl font-extrabold">{p.name}</p>
         <p className="text-sm text-white/70">
@@ -48,7 +48,7 @@ export default async function VerifyPage({
         Check this page matches the person in front of you. Full documents are
         reviewed by the platform —{" "}
         <Link href="/" className="font-bold text-[#0C6B3C] underline">
-          SIWES Connect
+          Siwes-Link
         </Link>
       </p>
     </main>

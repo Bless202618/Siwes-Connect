@@ -1,4 +1,4 @@
-// SIWES Connect service worker — makes the app installable + resilient offline.
+// Siwes-Link service worker — makes the app installable + resilient offline.
 // Rules: never touch non-GET (Server Actions POSTs always go to network),
 // navigations are network-first with an offline fallback to the home page,
 // static assets are cache-first.

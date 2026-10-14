@@ -9,7 +9,7 @@ export function ShareVerifyButton({ url }: { url: string }) {
   async function share() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Verify me on SIWES Connect", url });
+        await navigator.share({ title: "Verify me on Siwes-Link", url });
         return;
       } catch {
         return;

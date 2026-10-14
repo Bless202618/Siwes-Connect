@@ -119,7 +119,7 @@ export default async function NotificationsPage({
       <div className="flex items-start gap-2 rounded-2xl bg-[#0A3B22] p-4 text-white">
         <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#4ADE80]" />
         <p className="text-sm">
-          <b>Official verified channel.</b> No employer on SIWES Connect
+          <b>Official verified channel.</b> No employer on Siwes-Link
           charges money for acceptance.
         </p>
       </div>

@@ -1,4 +1,4 @@
-# SIWES Connect
+# Siwes-Link
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/9b72830f-0360-48f6-af13-86172506cf6a/deploy-status)](https://app.netlify.com/projects/stirring-platypus-c55f83/deploys)
 
@@ -10,7 +10,7 @@ Bridge the gap between university walls and industry by making IT placement disc
 400-level IT students struggle to find verified, legitimate IT placement (SIWES-style) opportunities. The process today is informal, unverified, and disconnected — students rely on word-of-mouth or unverified listings, companies have no structured way to reach qualified students, and there's no accountability once a placement starts.
 
 ## Solution
-SIWES Connect brings verified companies offering IT placements with verified 400-level students, providing matched discovery, structured applications, in-app status tracking, and support through the placement period.
+Siwes-Link brings verified companies offering IT placements with verified 400-level students, providing matched discovery, structured applications, in-app status tracking, and support through the placement period.
 
 ## Target Users
 - **Primary:** 400-level IT students seeking verified placement opportunities
