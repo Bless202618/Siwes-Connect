@@ -1,4 +1,4 @@
-# Siwes-Link — Backup & Restore Runbook
+# siwes-link — Backup & Restore Runbook
 
 ## Honest starting point
 Free-tier Postgres has **no automatic daily backups**. Until you upgrade,

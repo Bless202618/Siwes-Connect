@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Siwes-Link — Verified Placements",
-    short_name: "Siwes-Link",
+    name: "siwes-link — Verified Placements",
+    short_name: "siwes-link",
     description:
       "Verified companies meet verified students. Matched openings, structured applications, clear status tracking.",
     start_url: "/?source=pwa",

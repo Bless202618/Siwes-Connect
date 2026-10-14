@@ -1,10 +1,10 @@
-# Siwes-Link — Interface Build Tools (supplement to IMPLEMENTATION_PLAN.md Phase 1)
+# siwes-link — Interface Build Tools (supplement to IMPLEMENTATION_PLAN.md Phase 1)
 
 Verified against official pricing pages, Sep 2026. Best FREE option per tool — all sufficient for the 1-department pilot. Matches stack: Next.js + Supabase + Vercel.
 
 ## Free-tier verdict (checked)
 
-| Tool | Best free version | Free limits (verified) | Verdict for Siwes-Link pilot |
+| Tool | Best free version | Free limits (verified) | Verdict for siwes-link pilot |
 | :--- | :--- | :--- | :--- |
 | Figma | Starter (free) | Unlimited drafts, UI kits/templates, 150 AI credits/day up to 500/mo, 30-day version history | OK — work in drafts, 1 file with 4 pages (feed, posting detail, company table, admin queue) |
 | Next.js + Tailwind | MIT open-source, free forever | No limits | OK — `create-next-app --typescript --tailwind` |
@@ -37,7 +37,7 @@ Verified against official pricing pages, Sep 2026. Best FREE option per tool —
 - One Zod schema per form: student profile (CGPA 0-5, skills[], 5MB file cap), company profile (CAC required), posting (title/dept/location required, stipend field forbidden), application answers.
 
 ## 5. Backend + hosting + email (all on free tiers above)
-- Supabase Free: 1 project for Siwes-Link (keep 2nd free slot for dev), buckets `cvs` + `verification-docs` private. Expect pause after 1 idle week — one click to resume.
+- Supabase Free: 1 project for siwes-link (keep 2nd free slot for dev), buckets `cvs` + `verification-docs` private. Expect pause after 1 idle week — one click to resume.
 - Vercel Hobby: connect `badge` repo, auto preview per push.
 - Resend Free: 1 domain, templates for status-change / new-match / report-ack (all under 100/day in pilot).
 

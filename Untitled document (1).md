@@ -1,9 +1,9 @@
-# Siwes-Link — Product Requirements Document
+# siwes-link — Product Requirements Document
 
 ## 1\. Overview
 
 Problem: 400-level IT students struggle to find verified, legitimate IT placement (SIWES-style) opportunities. The process today is informal, unverified, and disconnected — students rely on word-of-mouth or unverified listings, companies have no structured way to reach qualified students, and there's no accountability once a placement starts.  
-Solution: Siwes-Link is a platform that connects verified companies offering IT placements with verified 400-level students, providing matched discovery, structured applications, in-app status tracking, and support through the placement period.  
+Solution: siwes-link is a platform that connects verified companies offering IT placements with verified 400-level students, providing matched discovery, structured applications, in-app status tracking, and support through the placement period.  
 Vision statement: Bridge the gap between university walls and industry by making IT placement discovery verified, transparent, and accountable — for both students and companies.
 
 ## 2\. Target Users

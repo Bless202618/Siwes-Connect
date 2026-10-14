@@ -48,7 +48,7 @@ function ManualSteps({ os }: { os: "ios" | "android" | "desktop" }) {
           Scroll down and tap <b>Add to Home Screen</b>.
         </li>
         <li>
-          Tap <b>Add</b> — Siwes-Link opens full-screen with the green SC
+          Tap <b>Add</b> — siwes-link opens full-screen with the green SC
           icon.
         </li>
       </ol>
@@ -136,7 +136,7 @@ export function InstallButton({ large }: { large?: boolean }) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Install Siwes-Link</DialogTitle>
+          <DialogTitle>Install siwes-link</DialogTitle>
           <DialogDescription>
             Your phone will fetch the new green SC icon fresh during install.
           </DialogDescription>
