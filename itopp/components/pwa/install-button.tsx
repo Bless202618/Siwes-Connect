@@ -48,7 +48,7 @@ function ManualSteps({ os }: { os: "ios" | "android" | "desktop" }) {
           Scroll down and tap <b>Add to Home Screen</b>.
         </li>
         <li>
-          Tap <b>Add</b> — siwes-link opens full-screen with the green SC
+          Tap <b>Add</b> — siwes-link opens full-screen with the green SL
           icon.
         </li>
       </ol>
@@ -63,7 +63,7 @@ function ManualSteps({ os }: { os: "ios" | "android" | "desktop" }) {
         <li>
           Tap <b>Add to Home screen</b> (or <b>Install app</b> if shown).
         </li>
-        <li>Confirm — the green SC icon lands on your home screen.</li>
+        <li>Confirm — the green SL icon lands on your home screen.</li>
       </ol>
     );
   }
@@ -77,7 +77,7 @@ function ManualSteps({ os }: { os: "ios" | "android" | "desktop" }) {
         No icon? Click the <b>⋮ menu → Cast, save and share → Install page as
         app</b>.
       </li>
-      <li>Pin the green SC app to your taskbar.</li>
+      <li>Pin the green SL app to your taskbar.</li>
     </ol>
   );
 }
@@ -138,7 +138,7 @@ export function InstallButton({ large }: { large?: boolean }) {
         <DialogHeader>
           <DialogTitle>Install siwes-link</DialogTitle>
           <DialogDescription>
-            Your phone will fetch the new green SC icon fresh during install.
+            Your phone will fetch the new green SL icon fresh during install.
           </DialogDescription>
         </DialogHeader>
         <ManualSteps os={os} />
