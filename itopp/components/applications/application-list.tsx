@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { withdrawAction } from "@/lib/actions";
 import { RateForm } from "@/components/ratings/rate-form";
+import { formatDate } from "@/lib/format";
 
 export interface ApplicationRow {
   id: string;
@@ -55,11 +56,7 @@ function stageOf(status: ApplicationRow["status"]): number {
 }
 
 function fmt(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(iso);
 }
 
 function Timeline({ app }: { app: ApplicationRow }) {

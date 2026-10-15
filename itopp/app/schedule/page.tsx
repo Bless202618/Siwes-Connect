@@ -4,6 +4,7 @@ import { BellRing, CalendarDays } from "lucide-react";
 import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PageHeader } from "@/components/layout/page-header";
+import { formatDate, formatMonthYear } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 function dayKey(d: Date) {
@@ -38,10 +39,7 @@ export default async function SchedulePage() {
     eventDays.add(dayKey(new Date(a.updatedAt)));
   }
 
-  const monthLabel = today.toLocaleDateString(undefined, {
-    month: "long",
-    year: "numeric",
-  });
+  const monthLabel = formatMonthYear(today);
 
   const agenda = apps.slice(0, 10).map((a) => ({
     id: a.id,
@@ -60,12 +58,7 @@ export default async function SchedulePage() {
           ? "bg-[#FEF3C7] text-[#B45309]"
           : "bg-gray-100 text-[#475569]",
     title: `${a.posting.company.companyName} — ${a.posting.title}`,
-    date: new Date(a.updatedAt).toLocaleDateString(undefined, {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }),
+    date: formatDate(new Date(a.updatedAt).toISOString()),
     sub:
       a.status === "accepted"
         ? "Offer received — company contacts you directly"
